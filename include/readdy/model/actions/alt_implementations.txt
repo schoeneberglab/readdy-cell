@@ -1,0 +1,125 @@
+// Single-Reaction Implementation
+//class ReactionConfig {
+//public:
+//    void addReactionConfig(const std::string &reactionName, const std::vector<std::string> &topologyTypes) {
+//        if (reactionName.empty()) {
+//            throw std::logic_error("Reaction name must not be empty.");
+//        }
+//        if (topologyTypes.empty()) {
+//            throw std::logic_error("Topology types list must not be empty.");
+//        }
+//        _reactionName = reactionName;
+//        _topologyTypes = topologyTypes;
+//    }
+//
+//    const std::string &reactionName() const {
+//        return _reactionName;
+//    }
+//
+//    const std::vector<std::string> &topologyTypes() const {
+//        return _topologyTypes;
+//    }
+//
+//private:
+//    std::string _reactionName;
+//    std::vector<std::string> _topologyTypes;
+//};
+
+// Multi-Reaction Implementation (V1 - explicitly defined topologies)
+//class ReactionConfig {
+//public:
+//    // Registers a new reaction with its associated topology types
+//    void registerReaction(const std::string &reactionName, const std::vector<std::string> &topologyTypes) {
+//        if (reactionName.empty()) {
+//            throw std::logic_error("Reaction name must not be empty.");
+//        }
+//        if (topologyTypes.empty()) {
+//            throw std::logic_error("Topology types list must not be empty.");
+//        }
+//        if (_reactions.find(reactionName) != _reactions.end()) {
+//            throw std::logic_error(fmt::format("Reaction '{}' is already registered.", reactionName));
+//        }
+//        _reactions[reactionName] = topologyTypes;
+//    }
+//
+//    // Get the topology types associated with a given reaction
+//    const std::vector<std::string> &getTopologyTypes(const std::string &reactionName) const {
+//        auto it = _reactions.find(reactionName);
+//        if (it == _reactions.end()) {
+//            throw std::logic_error(fmt::format("Reaction '{}' is not registered.", reactionName));
+//        }
+//        return it->second;
+//    }
+//
+//    // Get all registered reactions
+//    const std::unordered_map<std::string, std::vector<std::string>> &getAllReactions() const {
+//        return _reactions;
+//    }
+//
+//private:
+//    // Stores reactions and their associated topology types
+//    std::unordered_map<std::string, std::vector<std::string>> _reactions;
+//};
+//
+//
+///**
+// * The ActionReaction feature allows for structural reactions be executed independently from the
+// * the reaction scheduler and any rates. Uses ReactionConfig to define the reactions that should be evaluated
+// * and the topology types which they should be applied to.
+// */
+//
+//class ActionReaction : public readdy::model::actions::Action {
+//public:
+//    explicit ActionReaction(const ReactionConfig &reactionConfig)
+//        : reactionConfig(reactionConfig) {}
+//
+//    ~ActionReaction() override = default;
+//
+//protected:
+//    const ReactionConfig &reactionConfig;
+//
+//    template<typename Kernel, typename TopologyRef, typename Model, typename ParticleData>
+//    void perform(Kernel *kernel, readdy::util::index_persistent_vector<TopologyRef> &topologies, Model &model, ParticleData &particleData) override {
+//        std::vector<readdy::model::top::GraphTopology> resultingTopologies;
+//        std::size_t topologyIdx = 0;
+//
+//        for (auto &top : topologies) {
+//            if (!top->isDeactivated()) {
+//                for (const auto &reaction : reactionConfig.getAllReactions()) {
+//                    const auto &reactionName = reaction.first;
+//
+//                    // Retrieve the reaction from the registry
+//                    auto structuralReaction = kernel->context()
+//                                                       .topologyRegistry()
+//                                                       .structuralReactionByName(reactionName);
+//
+//                    if (!structuralReaction) {
+//                        throw std::logic_error(fmt::format("Reaction '{}' not found in the registry.", reactionName));
+//                    }
+//
+//                    // Execute the structural reaction
+//                    readdy::model::actions::top::executeStructuralReaction(
+//                        topologies, resultingTopologies, top, *structuralReaction, topologyIdx, particleData, kernel);
+//                }
+//            }
+//            ++topologyIdx;
+//        }
+//
+//        const auto &context = kernel->context();
+//        for (auto &&newTopology : resultingTopologies) {
+//            if (!newTopology.isNormalParticle(*kernel)) {
+//                newTopology.updateReactionRates(
+//                    context.topologyRegistry().structuralReactionsOf(newTopology.type()));
+//                newTopology.configure();
+//                model.insert_topology(std::move(newTopology));
+//            } else {
+//                auto it = newTopology.graph().begin();
+//                if (it == newTopology.graph().end()) {
+//                    throw std::logic_error("(ActionReaction) Topology had no active particle!");
+//                }
+//                auto particleIndex = it->data().particleIndex;
+//                model.getParticleData()->entry_at(particleIndex).topology_index = -1;
+//            }
+//        }
+//    }
+//};

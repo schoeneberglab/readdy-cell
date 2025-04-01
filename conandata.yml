@@ -1,0 +1,9 @@
+# This file is managed by Conan, contents will be overwritten.
+# To keep your changes, remove these comment lines, but the plugin won't be able to modify your requirements
+
+requirements:
+  - "nlohmann_json/3.11.3"
+  - "spdlog/1.14.1"
+  - "fmt/11.0.2"
+  - "hdf5/1.14.5"
+  - "c-blosc2/2.15.0"
