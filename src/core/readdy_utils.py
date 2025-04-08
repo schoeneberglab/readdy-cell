@@ -11,6 +11,8 @@ import pandas as pd
 import scipy.linalg as linalg
 from tqdm import tqdm
 
+# Taken from https://github.com/blairlyons/readdy-models/blob/main/simularium_readdy_models/common/readdy_util.py
+
 class ReaddyUtils:
     def __init__(self):
         """

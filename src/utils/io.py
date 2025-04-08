@@ -4,8 +4,7 @@ import readdy
 
 ut = readdy.units
 
-# TODO: Use .project-root file to infer project root
-
+# TODO: Definitely a better way to do this but it'll do for now
 def get_project_root() -> Path:
     return Path(__file__).parent.parent.parent
 

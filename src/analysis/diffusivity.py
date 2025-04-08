@@ -1,9 +1,5 @@
 import numpy as np
-import igraph as ig
 from scipy.linalg import lstsq
-from typing import Union, List, Dict
-import matplotlib.pyplot as plt
-from dataclasses import dataclass, field
 
 from src.analysis import TopologyGraphs
 from src.analysis.base import AnalysisBase
@@ -59,23 +55,6 @@ class Diffusivity(AnalysisBase):
         tg.run(particle_types=self._particle_type)
         ttraj = tg.get_unique_topology_trajectories(self._particle_type, self._equilibration_fraction)
 
-        # Flatten the dictionary to a list per-trajectory dictionaries
-        # ttrajs = []
-        # max_n_frames = 0
-        # for tuid, tuid_trajs in ttraj.items():
-        #     for traj in tuid_trajs:
-        #         if traj["coordinate"].shape[0] < self._min_n_frames:
-        #             continue
-        #         max_n_frames = max(traj["coordinate"].shape[0], max_n_frames)
-        #     ttrajs.extend(tuid_trajs)
-        #
-        # # Set up and populate the msd matrix
-        # msd_matrix = np.full(shape=(max_n_frames, len(ttrajs)), fill_value=np.nan)
-        # for i, traj in enumerate(ttrajs):
-        #     coordinates = traj["coordinate"]
-        #     for t in range(coordinates.shape[0]):
-        #         msd_matrix[t, i] = np.mean(np.linalg.norm(coordinates[t] - coordinates[0], axis=0) ** 2)
-        # return msd_matrix
 
         # Flatten the dictionary to a list per-trajectory dictionaries
         ttrajs = []
@@ -147,6 +126,7 @@ class Diffusivity(AnalysisBase):
         self._results.node.msd_matrix = self._get_node_msd_matrix()
         self._results.node.diffusivity = self._calculate_diffusivity(self._results.node.msd_matrix)
 
+        # TODO: Implement me
         # self._results.segment.msd_matrix = self._get_segment_msd_matrix()
         # self._results.segment.diffusivity = self._calculate_diffusivity(self._results.segment.msd_matrix)
 

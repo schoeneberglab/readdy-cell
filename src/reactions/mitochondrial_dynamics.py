@@ -72,7 +72,7 @@ class MitochondrialDynamics:
     def _get_reactive_particle_pairs(self):
         """ Returns the reactive particle types """
         ptype_pairs = list(itertools.product(self.REACTIVE_PARTICLES["fusion1"], repeat=2))
-        # TODO: There's likely a better place for this conditional parameter but it's here for now
+        # TODO: There's likely a better place for this flag but it's here for now
         if not self.parameters["enable_ss_fusion"]:
             ptype_pairs = [pair for pair in ptype_pairs if pair != ("mitochondria#internal", "mitochondria#internal")]
         return ptype_pairs
@@ -106,41 +106,13 @@ class MitochondrialDynamics:
                                                   rate_function=lambda x: 1.e32,
                                                   expect_connected=False)
 
-    # ORIGINAL
-    # def reaction_function_fission1_with_at(self, topology):
-    #     """ Fission Reaction 1/2 with Active Transport """
-    #     print(f"(Fission 1+AT) Initial Topology: \n", ReaddyUtils.topology_to_string(topology)) if self._debug else None
-    #     recipe = readdy.StructuralReactionRecipe(topology)
-    #
-    #     # Get the number of particles in the topology
-    #     n_particles = len(topology.particles)
-    #     if n_particles == 1:
-    #         return recipe
-    #
-    #     vs_mito_int = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#internal", exact_match=True)
-    #     if len(vs_mito_int) == 0:
-    #         return recipe
-    #     else:
-    #         v_mito = vs_mito_int[0]
-    #         vs_mito_neighbors = ReaddyUtils.get_neighbors_of_type(topology, v_mito, vertex_type="mitochondria#", exact_match=False)
-    #         if len(vs_mito_neighbors) == 0:
-    #             return recipe
-    #
-    #         v_mito_neighbor = np.random.choice(vs_mito_neighbors)
-    #         recipe.change_particle_type(v_mito, "mitochondria#Fission-IM1")
-    #         recipe.change_particle_type(v_mito_neighbor, "mitochondria#Fission-IM1")
-    #         recipe.change_topology_type("Mitochondria#Fission-IM1")
-    #         recipe.remove_edge(v_mito, v_mito_neighbor)
-    #     return recipe
-
-    # MODIFIED - Added fixed vertex selection
     def reaction_function_fission1_with_at(self, topology):
         """ Fission Reaction 1/2 with Active Transport """
-        print(f"(Fission 1+AT) Initial Topology: \n", ReaddyUtils.topology_to_string(topology)) if self._debug else None
+        print(f"(Fission 1+AT) Initial Topology: \n",
+              ReaddyUtils.topology_to_string(topology)) if self._debug else None
         recipe = readdy.StructuralReactionRecipe(topology)
 
         # Filtering detached motors from the topology
-        # TODO: Not sure if this is required...
         n_particles = len(topology.particles)
         if n_particles == 1:
             return recipe
@@ -263,7 +235,7 @@ class MitochondrialDynamics:
                 vs_mito_neighbors = ReaddyUtils.get_neighbors_of_type(topology, v, "mitochondria#", exact_match=False)
                 vs_motor_neighbors = ReaddyUtils.get_neighbors_of_type(topology, v, "motor#", exact_match=False)
 
-                # TODO: Edge case; Retain motor single mito particle with AT fuses with another fragment?
+                # TODO: Retain motor single mito particle with AT fuses with another fragment?
                 # Remove motors from the new particles
                 if len(vs_motor_neighbors) != 0:
                     for v_motor in vs_motor_neighbors:

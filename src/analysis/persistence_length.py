@@ -3,9 +3,11 @@ import igraph as ig
 import scipy.optimize
 from src.analysis import TopologyGraphs
 from dataclasses import dataclass
+import readdy
 
 ut = readdy.units
 
+# TODO: Likely depricated due to TopologyGraphs class updates
 class PersistenceLength:
     """
     Calculate the persistence length for polymer chains in a ReaDDy simulation.

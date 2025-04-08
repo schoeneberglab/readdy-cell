@@ -53,7 +53,7 @@ class MitochondriaFactory(Factory, ModelUtils):
         return self.model
 
 if __name__ == "__main__":
-    data_dir = "/Users/earkfeld/PycharmProjects/mitosim/data/mitosim_dataset_v4/control/cell_1"
+    data_dir = "path/to/data"
     dl = DataLoader(data_dir)
     factory = MitochondriaFactory(data_loader=dl)
     model = factory.run()

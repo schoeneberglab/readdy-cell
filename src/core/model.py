@@ -7,8 +7,7 @@ import igraph as ig
 
 from src.core.model_utils import ModelUtils
 
-# TODO: Set up metadata to store how the model was constructed
-
+# TODO: Set up metadata to store info on how the model was constructed
 @dataclass
 class Model(ModelUtils):
     topology_type: Optional[str] = field(default=None, repr=True)

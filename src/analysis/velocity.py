@@ -3,7 +3,7 @@ import numpy as np
 from typing import Optional
 ut = readdy.units
 
-# TODO: Standardize analysis module interfaces
+# TODO: Update to use base classes
 class Velocity:
     def __init__(self, timestep, simulation: Optional[readdy.Simulation] = None, **kwargs):
         """ Registers required observables and calculates the velocity of specified particles in the simulation. """

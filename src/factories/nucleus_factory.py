@@ -36,16 +36,9 @@ class NucleusFactory(Factory, ModelUtils):
         self._downsample_factor = None
         self._buffer_factor = 1.0
         self._dilation_array = None
-        # self._padding_array = None
         self._padding_array = np.array([1, 1, 1])
         self._radius = 0.2
-        # self._scale_factors = np.array([0.95, 0.95, 0.95])
-
-        self._scale_factors = np.array([0.9, 0.9, 0.8]) # Control C1 v6
-        # self._scale_factors = np.array([0.8, 0.8, 0.7]) # Noco60 C1 params
-
-        # self._scale_factors = np.array([0.95]*3)
-        # self._scale_factors = kwargs.get("scale_factors", np.array([0.9, 0.9, 0.9]))
+        self._scale_factors = np.array([0.95, 0.95, 0.95])
 
     @property
     def downsample_factor(self):
@@ -106,8 +99,6 @@ class NucleusFactory(Factory, ModelUtils):
         mask_data = self.format_mask(img)
         voxel_scale, voxel_units = self.data_loader.get_voxel_scale()
 
-        # if self._dilation_array is None:
-        #     self._dilation_array = self._calculate_dilation_array(self._radius, voxel_scale)
 
         if self._padding_array is not None:
             # Pad the mask data
@@ -117,10 +108,8 @@ class NucleusFactory(Factory, ModelUtils):
             coordinates = (np.argwhere(edge_data > 0) - self._padding_array) * voxel_scale
             coordinates = self.rescale(coordinates, self._scale_factors)
         else:
-            # mask_data = self._pad_mask_3d(mask_data, self._padding_array)
-            # mask_data = self._dilate_mask_3d(mask_data, self._dilation_array)
+
             edge_data = self._canny_3d(mask_data)
-            # coordinates = (np.argwhere(edge_data > 0) - self._padding_array) * voxel_scale
             coordinates = (np.argwhere(edge_data > 0) * voxel_scale)
 
             # Rescale the coordinates while
@@ -133,7 +122,7 @@ class NucleusFactory(Factory, ModelUtils):
         return self.model
 
 if __name__ == "__main__":
-    data_dir = "/home/earkfeld/PycharmProjects/mitosim/data/mitosim_dataset_v5/control/cell_1"
+    data_dir = "path/to/data"
     dl = DataLoader(data_dir)
     factory = NucleusFactory(dl)
     factory.run()

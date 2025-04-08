@@ -2,7 +2,7 @@ import numpy as np
 from igraph import Graph
 import igraph as ig
 
-# TODO: Pull in chain generator functions into this
+# TODO: Pull in chain generator functions into this to consolidate functionality
 class TopologyGraphGenerator:
     """ Class for generating iGraph representations of topologies for use in ReaDDy simulations. """
     def __init__(self, particle_type, topology_type, spacing=0.3, box_size=np.array([10.]*3), with_flags=True):

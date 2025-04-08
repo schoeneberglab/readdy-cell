@@ -77,7 +77,6 @@ class TopologyGraphs:
             self._results["all_topology_graphs"] = self._all_topology_graphs
 
     # TODO: Update this to filter based on multiple particle type strings
-    # ORIGINAL
     def run(self,
             particle_types: Union[str, List[str]] = None,
             resort: bool = False,
@@ -121,63 +120,6 @@ class TopologyGraphs:
             else:
                 self._results[particle_type] = particle_graphs
 
-
-    # TESTING; STATUS: TBD
-    # def run(self,
-    #         particle_types: Union[str, List[str]] = None,
-    #         resort: bool = False,
-    #         exact_match=False,
-    #         exclude_types=[]):
-    #     """ Extract the topology graphs for a given particle type. """
-    #     if isinstance(particle_types, str):
-    #         particle_types = [particle_types]
-    #
-    #     # valid_dict_template = {ptype: False for ptype in particle_types}
-    #
-    #
-    #     all_frame_graphs = self._results["all_topology_graphs"]
-    #     particle_graphs = np.empty(shape=len(all_frame_graphs), dtype=object)
-    #
-    #     for t, frame_graphs in enumerate(all_frame_graphs):
-    #         gs_frame = []
-    #         for g in frame_graphs:
-    #             n_vs = len(g.vs)
-    #             vs_remove = []
-    #
-    #             for v in g.vs:
-    #                 vtype = v["type"]
-    #                 if vtype in exclude_types:
-    #                     vs_remove.append(v.index)
-    #                     continue
-    #                 if exact_match:
-    #                     # Check if the vtype is in the particle type list
-    #                     if vtype != any(particle_types):
-    #                         vs_remove.append(v.index)
-    #                 else:
-    #                     is_valid = False
-    #                     for ptype in particle_types:
-    #                         if ptype in vtype:
-    #                             is_valid = True
-    #                             break
-    #
-    #                     if not is_valid:
-    #                         vs_remove.append(v.index)
-    #
-    #             if len(vs_remove) >= n_vs:
-    #                 continue
-    #             else:
-    #                 g.delete_vertices(vs_remove)
-    #                 g.simplify()
-    #                 gs_frame.append(g)
-    #         particle_graphs[t] = np.array(gs_frame)
-    #
-    #     multiparticle = False if len(particle_types) == 1 else True
-    #     res_key = particle_types[0] if not multiparticle else "topologies"
-    #     if resort:
-    #         self._results[res_key] = self._order_topologies_by_uid(particle_graphs)
-    #     else:
-    #         self._results[res_key] = particle_graphs
-
     @staticmethod
     def _order_topologies_by_uid(graphs):
         """ Reorders topology graphs according to their order in the first frame for topologies reacting only in heterogeneous fashion."""
@@ -201,125 +143,6 @@ class TopologyGraphs:
                 topology_uids.add(uid)
         return topology_uids
 
-    # def get_unique_topology_trajectories(self,
-    #                                      particle_type: str):
-    #     """ Extracts all unique topologies for a given particle type. """
-    #     assert self.results[particle_type] is not None, \
-    #         "Please run the analysis for the given particle type first."
-    #
-    #     tuids = set()
-    #     template_dict = {"start_frame": np.nan,
-    #                      "graph_trajectory": []}
-    #
-    #     # Set up the trajectory dictionary
-    #     ttraj = {uid: template_dict for uid in tuids}
-    #     for i, gs_frame in enumerate(self.results[particle_type]):
-    #         for g in gs_frame:
-    #             uid = tuple(sorted(g.vs["uid"]))
-    #             if ttraj[uid]["start_frame"] == np.nan:
-    #                 ttraj[uid]["start_frame"] = i
-    #             ttraj[uid]["graph_trajectory"].append(g)
-    #     return ttraj
-
-    # Testing 1
-    # def get_unique_topology_trajectories(self,
-    #                                      particle_type: str):
-    #     """ Extracts all unique topologies for a given particle type. """
-    #     assert self.results[particle_type] is not None, \
-    #         "Please run the analysis for the given particle type first."
-    #
-    #     # Set up the trajectory dictionary
-    #     ttraj = {}
-    #     open_tuids = set()
-    #     closed_tuids = set()
-    #     for t, gs_frame in enumerate(self.results[particle_type]):
-    #         visited_tuids = set()
-    #         for g in gs_frame:
-    #             uid = tuple(sorted(g.vs["uid"]))
-    #             # Case 1: new uid, new instance --> create new uid entry + instance
-    #             if uid not in ttraj.keys():
-    #                 ttraj[uid] = [{"start_frame": t,
-    #                               "end_frame": np.nan,
-    #                               "graph_trajectory": []}]
-    #                 open_tuids.add(uid)
-    #
-    #             # Case 2: old uid, new instance --> create new instance under existing uid entry
-    #             if uid in ttraj.keys() and uid in closed_tuids:
-    #                 ttraj[uid].append({"start_frame": t,
-    #                                     "end_frame": np.nan,
-    #                                     "graph_trajectory": []})
-    #                 open_tuids.add(uid)
-    #                 closed_tuids.remove(uid)
-    #
-    #             # Case 3: current uid, current instance --> update current instance
-    #             if uid in ttraj.keys and uid in open_tuids:
-    #                 ttraj[uid][-1]["graph_trajectory"].append(g)
-    #                 visited_tuids.add(uid)
-    #
-    #         # Close all open tuids that were not visited in the current frame
-    #         tuids_to_close = open_tuids - visited_tuids
-    #         for uid in tuids_to_close:
-    #             # Set the index of the last frame it was seen
-    #             ttraj[uid][-1]["end_frame"] = t
-    #             closed_tuids.add(uid)
-    #             open_tuids.remove(uid)
-    #     return ttraj
-
-
-    # # FUNCTIONAL VERSION
-    # def get_unique_topology_trajectories(self, particle_type: str, equilibration_fraction: float):
-    #     """ Extracts all unique topologies for a given particle type. """
-    #     assert self.results[particle_type] is not None, \
-    #         f"Results for particle type '{particle_type}' are missing. Please run the analysis first."
-    #
-    #     global_start_idx = 0
-    #     if equilibration_fraction > 0.0:
-    #         global_start_idx = int(equilibration_fraction * len(self._times))
-    #
-    #     # Set up the trajectory dictionary
-    #     ttraj = {}
-    #     open_tuids, closed_tuids = set(), set()
-    #     for t, gs_frame in enumerate(self.results[particle_type]):
-    #         if t < global_start_idx:
-    #             continue
-    #
-    #         visited_tuids = set()
-    #         for g in gs_frame:
-    #             if g is None:
-    #                 continue
-    #             uid = tuple(sorted(g.vs["uid"]))
-    #
-    #             # Case 1 & 2: Handle new uid or closed uid
-    #             if uid not in ttraj:
-    #                 ttraj[uid] = [{"start_frame": t, "graphs": [], "coordinate": []}]
-    #                 open_tuids.add(uid)
-    #             elif uid in closed_tuids:
-    #                 ttraj[uid].append({"start_frame": t, "graphs": [], "coordinate": []})
-    #                 open_tuids.add(uid)
-    #                 closed_tuids.remove(uid)
-    #
-    #             # Case 3: Update current instance
-    #             if uid in open_tuids:
-    #                 ttraj[uid][-1]["graphs"].append(g)
-    #                 coordinates = np.vstack(g.vs["coordinate"])
-    #                 mean_coordinate = np.mean(coordinates, axis=0)
-    #                 ttraj[uid][-1]["coordinate"].append(mean_coordinate)
-    #                 visited_tuids.add(uid)
-    #
-    #         # Close all open tuids that were not visited in the current frame
-    #         tuids_to_close = open_tuids - visited_tuids
-    #         for uid in tuids_to_close:
-    #             closed_tuids.add(uid)
-    #             open_tuids.remove(uid)
-    #
-    #     # Reformat the coordinate trajectory to a numpy array
-    #     for uid, trajs in ttraj.items():
-    #         for i, traj in enumerate(trajs):
-    #             ttraj[uid][i]["coordinate"] = np.vstack(traj["coordinate"])
-    #
-    #     return ttraj
-
-    # TESTING 2
     def get_unique_topology_trajectories(self, particle_type: str, equilibration_fraction: float):
         """ Extracts all unique topologies for a given particle type. """
         if self.results[particle_type] is None:
@@ -374,57 +197,6 @@ class TopologyGraphs:
                 ttraj[uid][i]["coordinate"] = np.vstack(traj["coordinate"])
         return ttraj
 
-
-    # def run(self,
-    #         particle_types: Union[str, List[str]] = None,
-    #         sorted: bool = True,
-    #         exact_match=False,
-    #         exclude_types=[]):
-    #     """ Extract the topology graphs for a given particle type. """
-    #
-    #     if isinstance(particle_types, str):
-    #         particle_types = [particle_types]
-    #
-    #     all_frame_graphs = self._results["all_topology_graphs"]
-    #
-    #     for particle_type in particle_types:
-    #         particle_graphs = []
-    #
-    #         for frame_graphs in all_frame_graphs:
-    #             gs_frame = []
-    #             for g in frame_graphs:
-    #                 vs_remove = [
-    #                     v.index for v in g.vs if (
-    #                             v["type"] in exclude_types or
-    #                             (exact_match and particle_type != v["type"]) or
-    #                             (not exact_match and particle_type not in v["type"])
-    #                     )
-    #                 ]
-    #
-    #                 if len(vs_remove) < len(g.vs):  # Skip entirely removed graphs
-    #                     g.delete_vertices(vs_remove)
-    #                     g.simplify()
-    #                     gs_frame.append(g)
-    #
-    #             particle_graphs.append(gs_frame)
-    #
-    #         particle_graphs = np.array(particle_graphs, dtype=object)
-    #
-    #         if sorted:
-    #             anchor_gs_uids = [sorted(g.vs["uid"]) for g in particle_graphs[0]]
-    #             ordered_topology_graphs = np.empty(
-    #                 (len(particle_graphs), len(anchor_gs_uids)), dtype=object
-    #             )
-    #
-    #             for t, gs_frame in enumerate(particle_graphs):
-    #                 uid_to_graph = {tuple(sorted(g.vs["uid"])): g for g in gs_frame}
-    #                 for i, anchor_uids in enumerate(anchor_gs_uids):
-    #                     ordered_topology_graphs[t, i] = uid_to_graph.get(tuple(anchor_uids))
-    #
-    #             self._results[particle_type] = ordered_topology_graphs
-    #         else:
-    #             self._results[particle_type] = particle_graphs
-
     def _calculate_restride_interval(self):
         """ Calculate the interval to restride the results to achieve a desired time between frames. """
         if not isinstance(self._restride_time, ut.Quantity):
@@ -464,7 +236,7 @@ class TopologyGraphs:
 
 # Example Usage
 if __name__ == "__main__":
-    traj_file = "/home/earkfeld/PycharmProjects/mitosim/data/trajectories/production_runs/t1/control/cell_0/control_c0_0.h5"
+    traj_file = "path/to/trajectory/file.h5"
     tg = TopologyGraphs(trajectory_file=traj_file, timestep=5.e-3 * ut.s)
     tg.run(particle_type="mitochondria")
     tg.get_unique_topology_trajectories(particle_type="mitochondria", equilibration_fraction=0.5)

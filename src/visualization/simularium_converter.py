@@ -1,10 +1,8 @@
 import json
 import readdy
 import igraph as ig
-from typing import Optional
 import numpy as np
-# from simulariumio.readdy import ReaddyConverter, ReaddyData
-from simulariumio.readdy import ReaddyData
+from simulariumio.readdy import ReaddyConverter, ReaddyData
 from simulariumio import (
     UnitData,
     MetaData,
@@ -12,69 +10,17 @@ from simulariumio import (
     DISPLAY_TYPE,
     ModelMetaData,  # TODO: Add metadata to model classes?
     TrajectoryConverter,
-    CameraData
+    CameraData,
+    TrajectoryData,
+    AgentData
 )
 
-from src.visualization.agent_data_custom import AgentData
-from src.visualization.trajectory_data_custom import TrajectoryData
-from src.visualization.readdy_converter_custom import ReaddyConverter
 from src.analysis import TopologyGraphs
 
-# TODO: Find bug which causes incorrect fiber position array dims when sequentially converting a set of trajectories
 class SimulariumConverter:
-    DEFAULT_PROPERTIES = {
-        "mitochondria#internal": {"radius": 0.15,
-                                  "color": "green"},
-        "mitochondria#terminal#AT": {"radius": 0.15,
-                                     "color": "green"},
-        "mitochondria#terminal": {"radius": 0.15,
-                                  "color": "green"},
-        "mitochondria#AT": {"radius": 0.15,
-                            "color": "green"},
-        "mitochondria#AT-IM1": {"radius": 0.15,
-                                "color": "green"},
-        "mitochondria#AT-IM2": {"radius": 0.15,
-                                "color": "green"},
-        # "mitochondria#AT1-IM1": {"radius": 0.15,
-        #                          "color": "green"},
-        # "mitochondria#AT1-IM2": {"radius": 0.15,
-        #                          "color": "green"},
-        # "mitochondria#AT2-IM1": {"radius": 0.15,
-        #                          "color": "green"},
-        # "mitochondria#AT2-IM2": {"radius": 0.15,
-        #                          "color": "green"},
-        "mitochondria#Fusion-IM1": {"radius": 0.15,
-                                    "color": "green"},
-        "mitochondria#Fusion-IM2": {"radius": 0.15,
-                                    "color": "green"},
-        "mitochondria#Fission-IM1": {"radius": 0.15,
-                                     "color": "green"},
-        "mitochondria#Fission-IM2": {"radius": 0.15,
-                                     "color": "green"},
-        "nucleus": {"radius": 0.25,
-                    "color": "blue"},
-        "membrane": {"radius": 0.25,
-                     "color": "red"},
-        "microtubule": {"color": "magenta",
-                        "radius": 0.03},
-        # "motor#kinesin": {"radius": 0.05,
-        #                   "color": "white"},
-        # "motor#dynein": {"radius": 0.05,
-        #                  "color": "gray"},
-        # "motor#decay": {"radius": 0.05,
-        #                 "color": "black"},
-        # "motor#IM": {"radius": 0.05,
-        #              "color": "black"},
-        "motor#kinesin": {"radius": 0.05,
-                          "color": "orange"},
-        "motor#dynein": {"radius": 0.05,
-                         "color": "yellow"},
-        "motor#decay": {"radius": 0.05,
-                        "color": "black"},
-        "motor#IM": {"radius": 0.05,
-                     "color": "black"},
-    }
-    # COLORS_PATH = "/Users/earkfeld/PycharmProjects/mitosim/src/visualization/colors.json"
+    DEFAULT_PROPERTIES = {}
+
+    # TODO: Replace hardcoded paths
     COLORS_PATH = "/home/earkfeld/PycharmProjects/mitosim/colors.json"
 
     def __init__(self, readdy_h5_path: str, **kwargs):
@@ -91,18 +37,14 @@ class SimulariumConverter:
         self.fov_degrees = kwargs.get("fov_degrees", 75)
         self.system_properties = kwargs.get("system_properties", self.DEFAULT_PROPERTIES)
 
-        # self.colors_path = "/Users/earkfeld/PycharmProjects/mitosim/src/visualization/colors.json"
         self.color_map = self.load_color_mappings()
         self.trajectory = readdy.Trajectory(readdy_h5_path)
 
         # Derived attributes
         self.box_size = self.trajectory.box_size
 
-        print(self.box_size)
-
         # Observables
         self.time, self.particle_types, self.particle_ids, self.positions = self.trajectory.read_observable_particles()
-        # self.time, self.positions = self.trajectory.read_observable_particle_positions()  # Replaces particle observable
         _, self.topologies = self.trajectory.read_observable_topologies()
         self.stride = self.time[1] - self.time[0]
         self.timestep *= self.stride  # Updating timestep to account for time per trajectory stride
@@ -128,24 +70,6 @@ class SimulariumConverter:
         tg = TopologyGraphs(self.readdy_h5_path, timestep=self.timestep)
         tg.run(self.fiber_type)
 
-        # gs = tg.results["all_topology_graphs"][0]
-        # g_mt = ig.Graph()
-        # gs_mt = []
-        # for g in gs:
-        #     ptypes = [v["type"] for v in g.vs]
-        #     if "tubulin" not in ptypes:
-        #         continue
-        #     else:
-        #         g_new = g.copy()
-        #         vs_remove = []
-        #         for v in g_new.vs:
-        #             if "tubulin" not in v["type"]:
-        #                 vs_remove.append(v)
-        #         g_new.delete_vertices(vs_remove)
-        #         g_mt += g_new.simplify()
-        #         gs_mt.append(g_new.simplify())
-
-        # Testing
         gs = tg.results[self.fiber_type][0]
         g_mt = ig.Graph()
         gs_mt = []
@@ -237,182 +161,6 @@ class SimulariumConverter:
                 v["coordinate"] = self.fiber_coordinates[t][i]
             gs.append(g)
         return gs
-
-    # def _get_static_fiber_agent_data(self, type_name="microtubule"):
-    #     """ Constructs agent data for per-segment fibers """
-    #     gs = SimulariumConverter.get_segments(self.fiber_graph)
-    #     self.max_n_subpoints = max(g.vcount() for g in gs) * 3
-    #
-    #     # Retrieve properties only once
-    #     microtubule_properties = self.system_properties[type_name]
-    #     radius = microtubule_properties['radius']
-    #     color_code = self.color_map[microtubule_properties['color']]
-    #
-    #     # Prepare data structures efficiently
-    #     _times = np.arange(self.n_steps, dtype=np.float32) * self.timestep
-    #     n_agents = len(gs)
-    #     _n_agents = [n_agents] * self.n_steps
-    #     _viz_types = np.full((self.n_steps, n_agents), 1001, dtype=np.int32).tolist()
-    #     _unique_ids = np.tile(np.arange(n_agents), (self.n_steps, 1)).tolist()
-    #     _subpoints = [[None] * n_agents for _ in range(self.n_steps)]
-    #     _n_subpoints = [[0] * n_agents for _ in range(self.n_steps)]
-    #     _radii = [[radius] * n_agents for _ in range(self.n_steps)]
-    #     _type_names = [[type_name] * n_agents for _ in range(self.n_steps)]
-    #     _positions = np.zeros((self.n_steps, n_agents, 3), dtype=np.float32)
-    #
-    #     for t in range(self.n_steps):
-    #         for i, g in enumerate(gs):
-    #             g_ordered = SimulariumConverter.reorder_vertices(g)
-    #             g_coordinates = np.array(g_ordered.vs["coordinate"], dtype=np.float32).flatten()
-    #             _subpoints[t][i] = g_coordinates
-    #             _n_subpoints[t][i] = g_coordinates.size
-    #
-    #     agent_data = AgentData(
-    #         times=_times,
-    #         n_agents=_n_agents,
-    #         types=_type_names,
-    #         positions=_positions,
-    #         viz_types=_viz_types,
-    #         unique_ids=_unique_ids,
-    #         subpoints=_subpoints,
-    #         n_subpoints=_n_subpoints,
-    #         radii=_radii,
-    #     )
-    #
-    #     agent_data.display_data[type_name] = DisplayData(
-    #         name=type_name,
-    #         color=color_code,
-    #         display_type=DISPLAY_TYPE.FIBER,
-    #     )
-    #     return agent_data
-    #
-    # def _get_dynamic_fiber_agent_data(self, type_name="microtubule"):
-    #     """ Constructs agent data for dynamic fibers """
-    #     if isinstance(self.fiber_graph, list):
-    #         print("_get_dynamic_fiber_agent_data: fiber_graph is a list")
-    #         gs = []
-    #         frame_indices = np.arange(0, len(self.fiber_coordinates), self.stride, dtype=int)
-    #         for i in frame_indices:
-    #             gs_frame = []
-    #             start_idx = 0
-    #             for g_segment in self.fiber_graph:
-    #                 n_vs = g_segment.vcount()
-    #                 end_idx = start_idx + n_vs
-    #
-    #                 g = ig.Graph(directed=False)
-    #                 g.add_vertices(n_vs)
-    #
-    #                 # Update the coordinates of the vertices
-    #                 g.vs["coordinate"] = self.fiber_coordinates[i][start_idx:end_idx]
-    #
-    #                 # Add the edges
-    #                 edges = g_segment.get_edgelist()
-    #                 g.add_edges(edges)
-    #                 gs_frame.append(g)
-    #                 start_idx = end_idx
-    #             gs.append(gs_frame)
-    #
-    #         self.max_n_subpoints = sum([g.vcount() for g in gs[0]])
-    #         n_agents = len(gs[0])
-    #
-    #     if isinstance(self.fiber_graph, ig.Graph):
-    #         print("_get_dynamic_fiber_agent_data: fiber_graph is not a list")
-    #         gs = []
-    #         frame_indices = np.arange(0, len(self.fiber_coordinates), self.stride, dtype=int)
-    #         for i in frame_indices:
-    #             n_vs = self.fiber_graph.vcount()
-    #             # start_idx = 0
-    #
-    #             g_frame = ig.Graph(directed=False)
-    #             g_frame.add_vertices(n_vs)
-    #
-    #             # Update the coordinates of the vertices
-    #             g_frame.vs["coordinate"] = self.fiber_coordinates[i]
-    #
-    #             # Add the edges
-    #             edges = self.fiber_graph.get_edgelist()
-    #             g_frame.add_edges(edges)
-    #             gs.append(g_frame)
-    #
-    #         is_branching = False
-    #         for g_frame in gs:
-    #             components = g_frame.connected_components(mode="weak")
-    #             components = [g_frame.subgraph(component) for component in components]
-    #
-    #             for g in components:
-    #                 # Count the number of vertices of degree 1
-    #                 n_deg1 = len([v for v in g.vs if v.degree() == 1])
-    #                 if n_deg1 != 2:
-    #                     print("Branching detected!")
-    #                     is_branching = True
-    #                     break
-    #
-    #             if is_branching:
-    #                 break
-    #             else:
-    #                 continue
-    #
-    #         segments = []
-    #         for g in components:
-    #             segments.extend(self.get_segments(g))
-    #
-    #         vcount_segments = [g.vcount() for g in segments]
-    #         self.max_n_subpoints = max(vcount_segments) * 3
-    #         n_agents = len(segments)
-    #
-    #     # Retrieve properties only once
-    #     microtubule_properties = self.system_properties[type_name]
-    #     radius = microtubule_properties['radius']
-    #     color_code = self.color_map[microtubule_properties['color']]
-    #
-    #     # Prepare data structures efficiently
-    #     _times = np.arange(self.n_steps, dtype=np.float32) * self.timestep
-    #     _n_agents = [n_agents] * self.n_steps
-    #     _viz_types = np.full((self.n_steps, n_agents), 1001, dtype=np.int32).tolist()
-    #     _unique_ids = np.tile(np.arange(n_agents), (self.n_steps, 1)).tolist()
-    #     _subpoints = [[None] * n_agents for _ in range(self.n_steps)]
-    #     _n_subpoints = [[0] * n_agents for _ in range(self.n_steps)]
-    #     _radii = [[radius] * n_agents for _ in range(self.n_steps)]
-    #     _type_names = [[type_name] * n_agents for _ in range(self.n_steps)]
-    #     _positions = np.zeros((self.n_steps, n_agents, 3), dtype=np.float32)
-    #
-    #     # Iterate over each frame
-    #     for frame_idx, g_frame in enumerate(gs):
-    #         # Retrieve the graph for the current frame
-    #         if isinstance(g_frame, list):
-    #             gs_segments = g_frame
-    #         else:
-    #             # gs_segments = SimulariumConverter.get_segments(g_frame)
-    #             components = g_frame.connected_components(mode="weak")
-    #             gs_segments = []
-    #             for component in components:
-    #                 g_frame_component = g_frame.subgraph(component)
-    #                 gs_segments.extend(self.get_segments(g_frame_component))
-    #                 # gs_segments.append(g_frame.subgraph(component))
-    #         for i, g in enumerate(gs_segments):
-    #             # g_ordered = self.reorder_vertices(g)
-    #             g_coordinates = np.array(g.vs["coordinate"], dtype=np.float32).flatten()
-    #             _subpoints[frame_idx][i] = g_coordinates
-    #             _n_subpoints[frame_idx][i] = g_coordinates.size
-    #
-    #     agent_data = AgentData(
-    #         times=_times,
-    #         n_agents=_n_agents,
-    #         types=_type_names,
-    #         positions=_positions,
-    #         viz_types=_viz_types,
-    #         unique_ids=_unique_ids,
-    #         subpoints=_subpoints,
-    #         n_subpoints=_n_subpoints,
-    #         radii=_radii,
-    #     )
-    #
-    #     agent_data.display_data[type_name] = DisplayData(
-    #         name=type_name,
-    #         color=color_code,
-    #         display_type=DISPLAY_TYPE.FIBER,
-    #     )
-    #     return agent_data
 
     def _get_dynamic_fiber_agent_data(self, type_name="microtubule"):
         """ Constructs agent data for dynamic fibers """
@@ -554,6 +302,54 @@ class SimulariumConverter:
         )
         return agent_data
 
+    def _get_static_fiber_agent_data(self, type_name="microtubule"):
+        """ Constructs agent data for per-segment fibers """
+        gs = SimulariumConverter.get_segments_with_anchor_nodes(self.fiber_graph)
+        self.max_n_subpoints = max(g.vcount() for g in gs) * 3
+
+        # Retrieve properties only once
+        microtubule_properties = self.system_properties[type_name]
+        radius = microtubule_properties['radius']
+        color_code = self.color_map[microtubule_properties['color']]
+
+        # Prepare data structures efficiently
+        _times = np.arange(self.n_steps, dtype=np.float32) * self.timestep
+        n_agents = len(gs)
+        _n_agents = [n_agents] * self.n_steps
+        _viz_types = np.full((self.n_steps, n_agents), 1001, dtype=np.int32).tolist()
+        _unique_ids = np.tile(np.arange(n_agents), (self.n_steps, 1)).tolist()
+        _subpoints = [[None] * n_agents for _ in range(self.n_steps)]
+        _n_subpoints = [[0] * n_agents for _ in range(self.n_steps)]
+        _radii = [[radius] * n_agents for _ in range(self.n_steps)]
+        _type_names = [[type_name] * n_agents for _ in range(self.n_steps)]
+        _positions = np.zeros((self.n_steps, n_agents, 3), dtype=np.float32)
+
+        for t in range(self.n_steps):
+            for i, g in enumerate(gs):
+                g_ordered = SimulariumConverter.reorder_vertices(g)
+                g_coordinates = np.array(g_ordered.vs["coordinate"], dtype=np.float32).flatten()
+                _subpoints[t][i] = g_coordinates
+                _n_subpoints[t][i] = g_coordinates.size
+
+        agent_data = AgentData(
+            times=_times,
+            n_agents=_n_agents,
+            types=_type_names,
+            positions=_positions,
+            viz_types=_viz_types,
+            unique_ids=_unique_ids,
+            subpoints=_subpoints,
+            n_subpoints=_n_subpoints,
+            radii=_radii,
+        )
+
+        agent_data.display_data[type_name] = DisplayData(
+            name=type_name,
+            color=color_code,
+            display_type=DISPLAY_TYPE.FIBER,
+        )
+        return agent_data
+
     @staticmethod
     def get_segments_with_anchor_nodes(g, as_undirected=True):
         """ Returns linear segments from a graph object."""
@@ -650,8 +446,6 @@ class SimulariumConverter:
                 self.particle_agent_data = ReaddyConverter(readdy_data)._get_agent_data(readdy_data)[0]
                 self.particle_agent_data.display_data = readdy_data.display_data
 
-                # camera_data = self.get_camera_data()
-                # self.box_size *= np.array([100., 100., 100.])
                 camera_data = None
                 trajectory_data = TrajectoryData(
                     meta_data=MetaData(
@@ -690,28 +484,8 @@ class SimulariumConverter:
 
 if __name__ == "__main__":
     # Example usage
-    data_dir_fn = lambda tid, condition, cid: f"/home/earkfeld/PycharmProjects/mitosim/data/trajectories/production_runs/t{tid}/{condition}/cell_{cid}/"
-    infile_fn = lambda condition, cid, rid: f"{condition}_c{cid}_{rid}.h5"
-    outfile_fn = lambda condition, cid, rid: f"{condition}_c{cid}_{rid}_vis"
+    infile = "readdy_trajectory.h5"
+    outfile = "out.simularium"
 
-    condition = "control"
-    tid = 9
-    cid = 1
-    rid = 0
-
-    infile = data_dir_fn(tid, condition, cid) + infile_fn(condition, cid, rid)
-    # outfile = data_dir_fn(tid, condition, cid) + outfile_fn(condition, cid, rid)
-    outfile = f"./{condition}"
-
-    processor = SimulariumConverter(
-        readdy_h5_path=infile,
-        with_fibers=False,
-    )
-
-    processor.save(outfile=outfile)
-
-    """
-    Note: Modified Simularium Files:
-    trajectory_data.py
-    agent_data.py
-    """
+    sc = SimulariumConverter(readdy_h5_path=infile)
+    sc.save(outfile=outfile)

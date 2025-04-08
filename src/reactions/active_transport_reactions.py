@@ -85,14 +85,6 @@ class ActiveTransportReactions:
                                                   rate_function=lambda x: 1.e32,
                                                   expect_connected=False)
 
-        # TODO: Set this rate very high & update step function so the event probabilities are calculated per-motor
-        # TODO: Process motor unbinding event probabilities in engine
-        # system.topologies.add_structural_reaction(f'Step AT',
-        #                                           topology_type=f'Mitochondria#AT',
-        #                                           reaction_function=self.reaction_function_step,
-        #                                           rate_function=lambda x: 1.e6,
-        #                                           expect_connected=False)
-
         system.topologies.add_structural_reaction(f'Step AT',
                                                   topology_type=f'Mitochondria#AT',
                                                   reaction_function=self.reaction_function_step,
@@ -150,7 +142,6 @@ class ActiveTransportReactions:
             # v_mito1 = ReaddyUtils.get_vertex_of_type(topology, "mitochondria#AT-IM1", exact_match=True)
             try:
                 v_mito2 = ReaddyUtils.get_neighbor_of_type(topology, v_mito1, "mitochondria#", exclude_vertices=[], exact_match=False)
-            # TODO: Possible transient bug here when adding AT to single-particle topology
             except Exception as e:
                 v_mito2 = None
 
@@ -211,7 +202,6 @@ class ActiveTransportReactions:
 
             # Case 3: [N] Tubulin, [Y] Mitochondria, [Y] Motor --> Mitochondria#AT Complex
             elif n_mito > 0 and n_motors > 0 and n_tubulin == 0:
-                # TODO: Add check for missing motors here!
                 if n_motors > 1:
                     vs_mito_at = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#terminal#AT", exact_match=True)
                     vs_mito_IM2 = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#AT-IM2", exact_match=True)
@@ -229,33 +219,20 @@ class ActiveTransportReactions:
                 v_mito_IM2_uid = ReaddyUtils.vertex_to_uid(topology, v_mito_IM2)
                 v_motor_IM = ReaddyUtils.get_neighbor_of_type(topology, v_mito_IM2, "motor#IM", exact_match=True)
 
-                # TODO: Not sure if this is necessary
-                # if v_motor_IM is None:
-                #     print("Add_AT_R3: No valid motor found. ")
-                #     recipe.change_particle_type(v_mito_IM2, "mitochondria#terminal")
-                #     recipe.change_topology_type("Mitochondria")
-                #     return recipe
-
                 # Set up motor info
                 v_motor_IM_uid = ReaddyUtils.vertex_to_uid(topology, v_motor_IM)
                 v_motor_IM_pos = ReaddyUtils.get_vertex_position(topology, v_motor_IM)
 
-                # TODO: Implement motor binding rates here if necessary (remove oriented binding?)
-                # Could have some funny behavior here b/c of pre-setting motor type?
                 if n_motors == 1:
                     new_motor_type = engine.get_motor_type(v_mito_IM2_uid)
-                    # TODO: ^^^Not sure if oriented binding is necessary for decentralized approach
                 else:
                     new_motor_type = np.random.choice(["motor#kinesin", "motor#dynein"], p=[0.5, 0.5])
 
                 # Case 3a: Valid motor type (returns None if no valid motor type is found)
                 if new_motor_type is not None:
-                    # p_active = self.parameters[motor_type]["p_active"]
-                    # motor_state = np.random.choice(["active", "inactive"], p=[p_active, 1. - p_active])
                     new_topology_type = f"Mitochondria#AT"
                     new_mito_type = f"mitochondria#terminal#AT"
 
-                    # TODO: Set up decentralized iterator creation in engine
                     engine.create_iterator(cargo_uid=v_mito_IM2_uid,
                                            motor_uid=v_motor_IM_uid,
                                            motor_position=v_motor_IM_pos,
@@ -291,7 +268,7 @@ class ActiveTransportReactions:
         vs_motor = ReaddyUtils.get_vertices_of_type(topology, vertex_type="motor#", exact_match=False)
         vs_mito = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#", exact_match=False)
         vs_mito_at = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#terminal#AT", exact_match=True)
-        # vs_mito_im = ReaddyUtils.get_vertices_of_type(topology, vertex_type="mitochondria#AT-IM2", exact_match=False)
+
         n_motors = len(vs_motor)
         n_mito_at = len(vs_mito_at)
         n_mito = len(vs_mito)

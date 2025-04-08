@@ -1,6 +1,5 @@
 """
 Decentralized Active Transport Engine
-Status: WIP; Non-Functional
 """
 
 import readdy
@@ -75,8 +74,7 @@ def reformat_vec3_trajectory(vec):
             vec_new[i][j] = np.array([vec[i][j][0], vec[i][j][1], vec[i][j][2]])
     return vec_new
 
-# TODO: Clean up these parameters
-# TODO: Store per-motor counts here instead of dictionary in engine class
+# TODO: Clean up unused parameters
 @dataclass
 class Motor:
     motor_type: str = None
@@ -319,7 +317,7 @@ class ActiveTransportEngine:
         if not isinstance(motor_uid, str):
             motor_uid = str(motor_uid)
         iterator = self.iterator_registry[motor_uid]
-        # TODO: This is probably duplicitous with at least part of iterator's __next__ method
+        # TODO: This is probably redundant to some part of iterator's __next__ method
         if iterator:
             try:
                 return next(iterator)
@@ -327,13 +325,9 @@ class ActiveTransportEngine:
                 return None
         return None
 
-    # TODO: Check if motor type changes need to be updated since the motor_type is now included in the motor object class?
-    # TODO: Write these to a file rather than holding them in memory?
     def update_site_data(self, coordinates):
         """ Updates the graph data with new site coordinates. """
         self.vertex_coordinates = coordinates
-        # if self._record_trajectory:
-        #     self._trajectory_coordinates.append(coordinates)
 
     def get_vertex_position(self, index):
         try:
@@ -394,7 +388,6 @@ class ActiveTransportEngine:
                 weight = self.get_orientation_weight(v_source, v_target, cargo_uvec)
                 if weight is not None:
                     pos_vecs.append(weight)
-                # pos_vecs.append(self.get_orientation_weight(v_source, v_target, cargo_uvec))
 
         neg_vecs = []
         if vs_target_neg is not None:
@@ -402,7 +395,6 @@ class ActiveTransportEngine:
                 weight = self.get_orientation_weight(v_source, v_target, cargo_uvec)
                 if weight is not None:
                     neg_vecs.append(weight)
-                # neg_vecs.append(self.get_orientation_weight(v_source, v_target, cargo_uvec))
 
         # Get the average orientation weight for all edges from the source vertex
         pos_weight = -1
@@ -527,19 +519,6 @@ class ActiveTransportEngine:
             calculate_forces()
             self.update_site_data(_sim.get_particle_positions("tubulin"))
             observe(0)
-            # ORIGINAL LOOP
-            # for t in trange(1, _n_steps + 1):
-            #     diffuse()
-            #     update_nl()
-            #     self.update_site_data(_sim.get_particle_positions("tubulin"))
-            #     perform_reaction()
-            #     break_bonds()
-            #     react_particles()
-            #     react_topologies()
-            #     update_nl()
-            #     calculate_forces()
-            #     observe(t)
-            #     self._it += 1
 
             for t in trange(1, _n_steps + 1):
                 diffuse()
@@ -645,7 +624,6 @@ class ActiveTransportEngine:
         self._record_trajectory = value
 
 
-# MODIFIED
 class ActiveTransportIterator:
     def __init__(self,
                  engine: ActiveTransportEngine,
@@ -762,7 +740,6 @@ class ActiveTransportIterator:
 
 
     def __next__(self):
-        # TODO: (1) Update the return values to dictate how the motor is removed
         if self.source_vertex is None:
             return None
 
@@ -770,13 +747,11 @@ class ActiveTransportIterator:
             try:
                 self.update_target_vertex()
             except TypeError:
-                # TODO: (1)
                 return None  # end of the line
 
         # >>> BEGIN MODIFIED V2>>>
         # Evaluate P(Unbinding) and return None if unbinding event occurs to trigger disassembly
         if np.random.choice([True, False], p=[self.motor.p_unbind, 1 - self.motor.p_unbind]):
-            # TODO: (1)
             if self.engine._event_counts:
                 self.engine._event_counts[self.motor.motor_type]["unbind"][self.engine._it] += 1
             return None  # Equivalent to the end of the line

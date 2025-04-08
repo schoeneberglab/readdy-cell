@@ -4,8 +4,7 @@ from typing import Any, Optional
 from src.core.data_loader import DataLoader
 from src.core.model import Model
 
-# TODO: Add consolidate construction variables into a factory config dict
-
+# TODO: Add consolidate construction vars
 class Factory(ABC):
     """Abstract Factory class for creating model objects."""
     DEFAULT_TOPOLOGY_TYPE = None

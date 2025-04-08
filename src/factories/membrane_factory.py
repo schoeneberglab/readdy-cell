@@ -108,10 +108,7 @@ class MembraneFactory(Factory, ModelUtils):
         padded_mask = self._pad_mask_3d(mask_data, self._padding_array)
         dilated_mask = self._dilate_mask_3d(padded_mask, self._dilation_array)
         edge_data = self._canny_3d(dilated_mask)
-        # Save the data as a black and white image using
         self.save_mask_as_binary_tif(edge_data)
-        # self.save_image(edge_data, "edge_data.tif")
-        # coordinates = (np.argwhere(edge_data > 0) - self._padding_array) * voxel_scale
         coordinates = MembraneFactory._get_coordinates(edge_data, self._padding_array, voxel_scale)
 
         if self._downsample_factor is None:
@@ -121,7 +118,7 @@ class MembraneFactory(Factory, ModelUtils):
         return self.model
 
 if __name__ == "__main__":
-    data_dir = "/Users/earkfeld/PycharmProjects/mitosim/data/mitosim_dataset_v5/control/cell_1"
+    data_dir = "path/to/data"
     dl = DataLoader(data_dir)
     factory = MembraneFactory(data_loader=dl)
     model = factory.run()

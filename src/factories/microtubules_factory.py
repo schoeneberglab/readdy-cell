@@ -70,18 +70,15 @@ class MicrotubulesFactory(Factory, ModelUtils):
 
     def run(self, *args, **kwargs) -> Model:
         """ Construct and return a model."""
-        # TODO: Fix this jank code where "None" downsamples it to the maximum amount
+        # TODO: Fixme; "None" results in maximum downsamples
         n_downsample = kwargs.get("n_downsample", 2)
         assert n_downsample is None or isinstance(n_downsample, int), "n_downsample must either an integer or None"
 
         if self._mask_membrane:
-            # Invert the membrane mask and intersect with the microtubule mask
-            # Format the mask to be boolean (black to True, white to False)
             mask = self.data_loader['membrane_mask'].astype(bool)
             self.img_segmented = self.img_segmented * self.format_mask(mask)
 
         if self._mask_nucleus:
-            # intersect the nucleus mask with the microtubule mask
             mask = np.logical_not(self.data_loader['nucleus_mask'].astype(bool))
             self.img_segmented = self.img_segmented * self.format_mask(mask)
 
@@ -119,14 +116,11 @@ class MicrotubulesFactory(Factory, ModelUtils):
                 if len(seq) < 2:
                     continue
                 else:
-                    # Check if both are present in the graph
                     if all(v in vs_contract for v in seq):
                         v_keep = seq[0]
                         v_remove = seq[1:]
                         for v in v_remove:
-                            # Get the index of the vertex in the graph list
                             v_idx = vs_contract.index(v)
-                            # Set the value in the graph list to the vertex to keep
                             vs_contract[v_idx] = v_keep
         else:
             for seq in sequences:
@@ -161,12 +155,11 @@ class MicrotubulesFactory(Factory, ModelUtils):
         visited_indices = set()
 
         for idx in unique_idxs:
-            # Find the smallest value in the vs_working list
             current_min = -1
             for i, v in enumerate(vs_working):
                 if v is not None and (current_min == -1 or v < current_min):
                     current_min = v
-            # Get the indices of all entries of min_val in the vs_working list
+
             min_indices = [i for i, x in enumerate(vs_working) if x == current_min]
 
             for min_idx in min_indices:

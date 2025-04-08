@@ -59,15 +59,6 @@ class DataLoader:
         self._frame = kwargs.get("frame", 0)
         self._setup_path_dict()
 
-    # @property
-    # def frame(self):
-    #     return self._frame
-    #
-    # @frame.setter
-    # def frame(self, frame):
-    #     self._frame = frame
-    #     self._setup_path_dict()
-
     def _setup_path_dict(self):
         """Sets up path dictionary using the specified configuration file and frame number."""
         self.pathdict = {k: v for k, v in self.DEFAULT_PATHS.items()}
