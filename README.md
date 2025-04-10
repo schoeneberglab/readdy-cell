@@ -3,7 +3,7 @@
 
 **ReaDDy-Cell** is a whole-cell digital twin simulation framework built on the [ReaDDy](https://github.com/readdy/readdy) particle-based reaction-diffusion platform.
 This implementation enables simulation of mitochondrial dynamics and intracellular transport directly from 4D lattice light-sheet microscopy (LLSM) data.
-For full details, check out our preprint on BioxRiv! [*Whole-cell particle-based digital twin simulations from 4D lattice light-sheet microscopy data*](INSERT-LINK-HERE)
+For full details, check out our preprint on BioxRiv! [*Whole-cell particle-based digital twin simulations from 4D lattice light-sheet microscopy data*](https://www.biorxiv.org/content/10.1101/2025.04.09.647865v1)
 
 ## Watch some Simulations
 - [**Passive Transport (Nocodazole 60 min)**](https://tinyurl.com/Cal27-noco60min)  
