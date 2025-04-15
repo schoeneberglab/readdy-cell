@@ -6,9 +6,9 @@ This implementation enables simulation of mitochondrial dynamics and intracellul
 For full details, check out our preprint on BioxRiv! [*Whole-cell particle-based digital twin simulations from 4D lattice light-sheet microscopy data*](https://www.biorxiv.org/content/10.1101/2025.04.09.647865v1)
 
 ## Watch some Simulations
-- [**Passive Transport (Nocodazole 60 min)**](https://tinyurl.com/Cal27-noco60min)  
 - [**Active Transport (Untreated Control)**](https://tinyurl.com/Cal27-control)  
 - ️[**Intermediate Perturbation (Nocodazole 30 min)**](https://tinyurl.com/Cal27-noco30min)
+- [**Passive Transport (Nocodazole 60 min)**](https://tinyurl.com/Cal27-noco60min)  
 
 ## Features
 - **Automated Digital Twin Construction**: Factory methods for building spatially explicit, particle-based models of mitochondria, microtubules, plasma membrane, and nuclear envelope from live-cell imaging data.
