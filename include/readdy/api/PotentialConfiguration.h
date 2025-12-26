@@ -47,8 +47,8 @@
 
 #include <unordered_map>
 
-#include <readdy/common/common.h>
-#include <readdy/common/ParticleTypeTuple.h>
+#include <common/common.h>
+#include <common/ParticleTypeTuple.h>
 
 namespace readdy::api {
 

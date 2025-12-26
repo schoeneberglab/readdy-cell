@@ -47,9 +47,9 @@
 
 #include <unordered_set>
 
-#include <readdy/common/ParticleTypeTuple.h>
+#include <common/ParticleTypeTuple.h>
 
-#include <readdy/model/ParticleTypeRegistry.h>
+#include <model/ParticleTypeRegistry.h>
 
 #include "PotentialOrder1.h"
 #include "PotentialOrder2.h"
@@ -314,6 +314,7 @@ public:
         _registerO1(pots.back().get());
     }
 
+    //TODO: Extend to allow for anchoring to particles?
     /**
      * Register a cylindrical potential that confines particles to its inside or outside using a harmonic potential.
      * The cylinder is defined with an origin (any point on the axis of the cylinder),

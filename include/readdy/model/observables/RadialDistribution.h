@@ -46,7 +46,7 @@
 #pragma once
 
 #include <vector>
-#include <readdy/io/BloscFilter.h>
+#include <io/BloscFilter.h>
 #include "Observable.h"
 
 namespace readdy::model::observables {

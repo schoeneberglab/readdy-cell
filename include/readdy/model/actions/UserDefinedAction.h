@@ -43,7 +43,7 @@
 
 #pragma once
 
-#include <readdy/model/Kernel.h>
+#include <model/Kernel.h>
 #include "Action.h"
 
 namespace readdy::model::actions {

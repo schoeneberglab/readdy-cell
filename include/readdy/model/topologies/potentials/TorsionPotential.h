@@ -47,7 +47,7 @@
 #include <cstddef>
 #include <tuple>
 #include <vector>
-#include <readdy/common/numeric.h>
+#include <common/numeric.h>
 #include "TopologyPotential.h"
 
 namespace readdy::model::top::pot {

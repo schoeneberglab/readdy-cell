@@ -45,9 +45,9 @@
 
 #pragma once
 #include <spdlog/fmt/ostr.h>
-#include <readdy/common/common.h>
-#include <readdy/model/Particle.h>
-#include <readdy/model/reactions/Reaction.h>
+#include <common/common.h>
+#include <model/Particle.h>
+#include <model/reactions/Reaction.h>
 
 namespace readdy::model::reactions {
 

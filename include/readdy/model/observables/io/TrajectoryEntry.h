@@ -46,9 +46,9 @@
 #pragma once
 
 #include <spdlog/fmt/ostr.h>
-#include <readdy/common/common.h>
-#include <readdy/model/Particle.h>
-#include <readdy/model/ParticleTypeRegistry.h>
+#include <common/common.h>
+#include <model/Particle.h>
+#include <model/ParticleTypeRegistry.h>
 
 namespace readdy::model::observables {
 

@@ -95,7 +95,7 @@ struct formatter<graphs::Vertex<T...>> {
     constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
 
     template <typename FormatContext>
-    auto format(const graphs::Vertex<T...> &v, FormatContext &ctx) {
+    auto format(const graphs::Vertex<T...> &v, FormatContext &ctx) const {
         std::stringstream ss;
         bool first {true};
         for (const auto neighbor : v.neighbors()) {

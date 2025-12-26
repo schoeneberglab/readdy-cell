@@ -50,15 +50,15 @@
 #include <map>
 #include <iostream>
 #include <utility>
-#include <readdy/common/signals.h>
-#include <readdy/model/Plugin.h>
-#include <readdy/model/actions/Action.h>
-#include <readdy/model/StateModel.h>
-#include <readdy/model/Context.h>
-#include <readdy/model/observables/ObservableFactory.h>
-#include <readdy/model/actions/ActionFactory.h>
-#include <readdy/model/topologies/TopologyActionFactory.h>
-#include <readdy/model/_internal/Util.h>
+#include <common/signals.h>
+#include <model/Plugin.h>
+#include <model/actions/Action.h>
+#include <model/StateModel.h>
+#include <model/Context.h>
+#include <model/observables/ObservableFactory.h>
+#include <model/actions/ActionFactory.h>
+#include <model/topologies/TopologyActionFactory.h>
+#include <model/_internal/Util.h>
 
 namespace readdy::model {
 

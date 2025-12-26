@@ -45,10 +45,10 @@
 
 #pragma once
 
-#include <readdy/common/common.h>
-#include <readdy/common/ParticleTypeTuple.h>
-#include <readdy/model/topologies/TopologyParticleTypeMap.h>
-#include <readdy/common/string.h>
+#include <common/common.h>
+#include <common/ParticleTypeTuple.h>
+#include <model/topologies/TopologyParticleTypeMap.h>
+#include <common/string.h>
 
 namespace readdy::model {
 class Particle;

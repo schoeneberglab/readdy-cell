@@ -10,7 +10,7 @@
 //namespace fs = std::filesystem;
 //#else
 #define CPP_FS 0
-#include <readdy/common/filesystem.h>
+#include <common/filesystem.h>
 namespace fs = readdy::util::fs;
 //#endif
 
@@ -20,9 +20,9 @@ namespace fs = readdy::util::fs;
 
 #include <h5rd/h5rd.h>
 
-#include <readdy/common/common.h>
-#include <readdy/model/Kernel.h>
-#include <readdy/model/IOUtils.h>
+#include <common/common.h>
+#include <model/Kernel.h>
+#include <model/IOUtils.h>
 
 namespace readdy::api {
 

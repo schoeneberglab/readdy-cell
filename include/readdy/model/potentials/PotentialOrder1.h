@@ -46,7 +46,7 @@
  */
 
 #pragma once
-#include <readdy/model/potentials/Potential.h>
+#include <model/potentials/Potential.h>
 
 #include <utility>
 

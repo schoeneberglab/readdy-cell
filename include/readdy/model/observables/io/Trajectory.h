@@ -51,7 +51,7 @@
 #include <array>
 #include <memory>
 
-#include <readdy/model/observables/Observable.h>
+#include <model/observables/Observable.h>
 
 #include "TrajectoryEntry.h"
 

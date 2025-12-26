@@ -45,11 +45,11 @@
 
 #pragma once
 
-#include <readdy/common/common.h>
-#include <readdy/common/ParticleTypeTuple.h>
-#include <readdy/model/ParticleTypeRegistry.h>
+#include <common/common.h>
+#include <common/ParticleTypeTuple.h>
+#include <model/ParticleTypeRegistry.h>
 #include <unordered_set>
-#include <readdy/common/Utils.h>
+#include <common/Utils.h>
 #include "Reaction.h"
 #include "Enzymatic.h"
 #include "Conversion.h"

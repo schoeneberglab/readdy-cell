@@ -49,7 +49,7 @@
 #include <atomic>
 #include <spdlog/fmt/ostr.h>
 
-#include <readdy/common/common.h>
+#include <common/common.h>
 
 namespace readdy::model {
 
@@ -118,4 +118,17 @@ protected:
     ParticleId _id;
 };
 
+}
+
+namespace fmt {
+template<>
+struct formatter<readdy::model::Particle> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const readdy::model::Particle &p, FormatContext &ctx) const {
+        return format_to(ctx.out(), "Particle(id={}, type={}, pos={})", p.id(), p.type(), p.pos());
+    }
+};
 }

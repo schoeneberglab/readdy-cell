@@ -43,8 +43,8 @@
 
 #pragma once
 
-#include <readdy/model/topologies/reactions/StructuralTopologyReaction.h>
-#include <readdy/common/index_persistent_vector.h>
+#include <model/topologies/reactions/StructuralTopologyReaction.h>
+#include <common/index_persistent_vector.h>
 
 namespace readdy::model::actions::top {
 

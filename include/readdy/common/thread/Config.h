@@ -45,7 +45,7 @@
 
 #include <thread>
 
-#include <readdy/common/common.h>
+#include <common/common.h>
 #include "executor.h"
 
 namespace readdy::util::thread {

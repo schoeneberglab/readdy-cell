@@ -60,11 +60,11 @@
 
 #include <h5rd/h5rd.h>
 
-#include <readdy/common/common.h>
-#include <readdy/common/signals.h>
-#include <readdy/common/logging.h>
-#include <readdy/common/tuple_utils.h>
-#include <readdy/common/ReaDDyVec3.h>
+#include <common/common.h>
+#include <common/signals.h>
+#include <common/logging.h>
+#include <common/tuple_utils.h>
+#include <common/ReaDDyVec3.h>
 
 namespace readdy::model {
 class Kernel;

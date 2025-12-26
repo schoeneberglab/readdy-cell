@@ -41,9 +41,9 @@
 
 #pragma once
 
-#include <readdy/common/Utils.h>
-#include <readdy/common/logging.h>
-#include <readdy/common/string.h>
+#include <common/Utils.h>
+#include <common/logging.h>
+#include <common/string.h>
 
 namespace readdy::plugin::utils {
 

@@ -44,9 +44,9 @@
 
 #pragma once
 #include <vector>
-#include <readdy/model/topologies/GraphTopology.h>
+#include <model/topologies/GraphTopology.h>
 #include "Particle.h"
-#include "readdy/common/ReaDDyVec3.h"
+#include "common/ReaDDyVec3.h"
 
 namespace readdy::model {
 

@@ -56,7 +56,7 @@
 #include <algorithm>
 #include <functional>
 #include <utility>
-#include <readdy/common/common.h>
+#include <common/common.h>
 
 namespace readdy::util {
 std::string getOS();

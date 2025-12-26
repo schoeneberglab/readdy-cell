@@ -44,7 +44,7 @@
 #pragma once
 
 
-#include <readdy/common/common.h>
+#include <common/common.h>
 #include "Observable.h"
 
 namespace readdy::model::observables {

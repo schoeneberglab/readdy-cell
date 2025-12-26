@@ -49,7 +49,7 @@
 //
 //#include <h5rd/h5rd.h>
 //
-//#include <readdy/common/common.h>
+//#include <common/common.h>
 //
 //namespace readdy::io {
 //
@@ -114,8 +114,9 @@
 #pragma once
 
 #include <h5rd/h5rd.h>
-#include <readdy/common/common.h>
+#include <common/common.h>
 
+//namespace readdy::io {
 namespace readdy::io {
 /**
  * Blosc filter for HDF5 datasets, supporting a variety of internal compressors.

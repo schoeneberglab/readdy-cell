@@ -45,7 +45,7 @@
 
 #pragma once
 
-#include <readdy/model/topologies/TopologyRecord.h>
+#include <model/topologies/TopologyRecord.h>
 #include "Observable.h"
 
 namespace readdy::model::observables {

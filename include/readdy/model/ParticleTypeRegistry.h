@@ -50,7 +50,7 @@
 #pragma once
 
 #include <variant>
-#include <readdy/common/common.h>
+#include <common/common.h>
 
 #include "Particle.h"
 

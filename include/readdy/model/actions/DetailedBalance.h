@@ -54,10 +54,10 @@
 
 #pragma once
 
-#include <readdy/common/common.h>
-#include <readdy/model/reactions/Reaction.h>
-#include <readdy/model/potentials/PotentialOrder2.h>
-#include <readdy/model/Context.h>
+#include <common/common.h>
+#include <model/reactions/Reaction.h>
+#include <model/potentials/PotentialOrder2.h>
+#include <model/Context.h>
 
 namespace readdy {
 namespace model {
@@ -149,4 +149,26 @@ equivalentReversibleReactions(const ReversibleReactionConfig &rev1, const Revers
 }
 }
 }
+}
+
+namespace fmt {
+template<>
+struct formatter<readdy::model::actions::reactions::ReversibleType> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const readdy::model::actions::reactions::ReversibleType &reversibleType, FormatContext &ctx) const {
+        switch (reversibleType) {
+            case readdy::model::actions::reactions::ReversibleType::FusionFission: 
+                return format_to(ctx.out(), "FusionFission");
+            case readdy::model::actions::reactions::ReversibleType::ConversionConversion: 
+                return format_to(ctx.out(), "ConversionConversion");
+            case readdy::model::actions::reactions::ReversibleType::EnzymaticEnzymatic: 
+                return format_to(ctx.out(), "EnzymaticEnzymatic");
+            default:
+                return format_to(ctx.out(), "Unknown");
+        }
+    }
+};
 }

@@ -46,11 +46,11 @@
 
 #pragma once
 
-#include <readdy/plugin/KernelProvider.h>
-#include <readdy/model/Kernel.h>
-#include <readdy/api/SimulationLoop.h>
-#include <readdy/model/topologies/reactions/StructuralTopologyReaction.h>
-#include <readdy/api/ObservableHandle.h>
+#include <plugin/KernelProvider.h>
+#include <model/Kernel.h>
+#include <api/SimulationLoop.h>
+#include <model/topologies/reactions/StructuralTopologyReaction.h>
+#include <api/ObservableHandle.h>
 
 namespace readdy {
 /**

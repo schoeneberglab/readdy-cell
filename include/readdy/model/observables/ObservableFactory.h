@@ -47,8 +47,8 @@
 
 #include <string>
 #include <unordered_map>
-#include <readdy/common/Utils.h>
-#include <readdy/model/observables/Observables.h>
+#include <common/Utils.h>
+#include <model/observables/Observables.h>
 
 namespace readdy::model {
 class Kernel;

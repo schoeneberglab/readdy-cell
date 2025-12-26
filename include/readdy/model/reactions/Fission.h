@@ -45,7 +45,7 @@
 
 #pragma once
 
-#include <readdy/common/logging.h>
+#include <common/logging.h>
 #include "Reaction.h"
 
 namespace readdy::model::reactions {

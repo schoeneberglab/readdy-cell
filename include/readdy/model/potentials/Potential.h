@@ -48,7 +48,7 @@
 
 #include <string>
 #include <array>
-#include <readdy/model/Particle.h>
+#include <model/Particle.h>
 
 namespace readdy::model::potentials {
 

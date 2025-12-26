@@ -47,7 +47,7 @@
 #pragma once
 
 #include <memory>
-#include <readdy/common/common.h>
+#include <common/common.h>
 
 #if READDY_OSX
 #include <string>
@@ -76,6 +76,33 @@ public:
 
 protected:
     scalar _timeStep;
+};
+
+//} // namespace readdy::model::actions
+
+class FunctionalAction {
+public:
+    FunctionalAction() = default;
+    virtual ~FunctionalAction() = default;
+    /**
+     * Stateless execution interface. Applies a functional operation using arbitrary input data.
+     */
+    virtual void perform(const void *data) = 0;
+};
+
+class TimeStepDependentFunctionalAction : public TimeStepDependentAction {
+public:
+    explicit TimeStepDependentFunctionalAction(scalar timeStep)
+        : TimeStepDependentAction(timeStep) {}
+
+    ~TimeStepDependentFunctionalAction() override = default;
+
+    // This is NOT an override of Action::perform() — so don't mark it as override
+    virtual void perform(const void *data) = 0;
+
+    [[nodiscard]] scalar timeStep() const {
+        return TimeStepDependentAction::timeStep();
+    }
 };
 
 }

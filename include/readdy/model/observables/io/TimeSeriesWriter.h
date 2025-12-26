@@ -48,8 +48,8 @@
 
 #include <h5rd/h5rd.h>
 
-#include <readdy/common/common.h>
-#include <readdy/io/BloscFilter.h>
+#include <common/common.h>
+#include <io/BloscFilter.h>
 
 namespace readdy::model::observables::util {
 

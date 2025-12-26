@@ -45,7 +45,7 @@
 
 #pragma once
 
-#include <readdy/model/reactions/ReactionRecord.h>
+#include <model/reactions/ReactionRecord.h>
 #include "Observable.h"
 
 namespace readdy::model::observables {

@@ -44,7 +44,7 @@
  */
 
 #pragma once
-#include <readdy/model/Context.h>
+#include <model/Context.h>
 
 namespace readdy::model::top {
 class Topology;

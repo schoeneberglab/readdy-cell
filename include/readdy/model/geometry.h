@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "readdy/common/common.h"
+#include "common/common.h"
 
 namespace readdy::model::geometry {
 

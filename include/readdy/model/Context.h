@@ -55,14 +55,14 @@
 #include <vector>
 #include <unordered_set>
 
-#include <readdy/common/ParticleTypeTuple.h>
-#include <readdy/api/KernelConfiguration.h>
+#include <common/ParticleTypeTuple.h>
+#include <api/KernelConfiguration.h>
 
 #include "ParticleTypeRegistry.h"
-#include <readdy/model/potentials/PotentialRegistry.h>
-#include <readdy/model/reactions/ReactionRegistry.h>
-#include <readdy/model/topologies/TopologyRegistry.h>
-#include <readdy/model/compartments/CompartmentRegistry.h>
+#include <model/potentials/PotentialRegistry.h>
+#include <model/reactions/ReactionRegistry.h>
+#include <model/topologies/TopologyRegistry.h>
+#include <model/compartments/CompartmentRegistry.h>
 
 namespace readdy::model {
 

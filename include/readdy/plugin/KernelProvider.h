@@ -47,7 +47,7 @@
 
 #include <memory>
 
-#include <readdy/model/Kernel.h>
+#include <model/Kernel.h>
 
 namespace readdy {
 namespace util::dll {

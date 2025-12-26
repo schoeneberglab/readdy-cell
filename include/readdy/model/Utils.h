@@ -44,8 +44,8 @@
  */
 
 #pragma once
-#include <readdy/model/Context.h>
-#include <readdy/model/observables/Observable.h>
+#include <model/Context.h>
+#include <model/observables/Observable.h>
 
 namespace readdy::model::util {
 

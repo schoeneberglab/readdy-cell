@@ -48,12 +48,12 @@
 #include <unordered_set>
 #include <unordered_map>
 
-#include <readdy/common/common.h>
-#include <readdy/common/ParticleTypeTuple.h>
-#include <readdy/api/PotentialConfiguration.h>
-#include <readdy/model/ParticleTypeRegistry.h>
-#include <readdy/model/topologies/reactions/StructuralTopologyReaction.h>
-#include <readdy/model/topologies/reactions/SpatialTopologyReaction.h>
+#include <common/common.h>
+#include <common/ParticleTypeTuple.h>
+#include <api/PotentialConfiguration.h>
+#include <model/ParticleTypeRegistry.h>
+#include <model/topologies/reactions/StructuralTopologyReaction.h>
+#include <model/topologies/reactions/SpatialTopologyReaction.h>
 
 #include "TopologyParticleTypeMap.h"
 

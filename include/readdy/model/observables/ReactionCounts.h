@@ -46,11 +46,11 @@
 #pragma once
 
 #include "Observable.h"
-#include <readdy/common/ParticleTypeTuple.h>
-#include <readdy/model/Particle.h>
-#include <readdy/model/Context.h>
-#include <readdy/model/reactions/Reaction.h>
-#include <readdy/model/reactions/ReactionRecord.h>
+#include <common/ParticleTypeTuple.h>
+#include <model/Particle.h>
+#include <model/Context.h>
+#include <model/reactions/Reaction.h>
+#include <model/reactions/ReactionRecord.h>
 
 namespace readdy::model::observables {
 

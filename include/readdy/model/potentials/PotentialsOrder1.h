@@ -48,7 +48,7 @@
 #pragma once
 
 #include <ostream>
-#include <readdy/model/compartments/Compartments.h>
+#include <model/compartments/Compartments.h>
 #include "PotentialOrder1.h"
 
 namespace readdy::model::potentials {

@@ -47,7 +47,7 @@
 #include <unordered_map>
 #include <utility>
 
-#include <readdy/model/Particle.h>
+#include <model/Particle.h>
 
 namespace readdy::model::compartments {
 

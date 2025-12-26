@@ -44,8 +44,8 @@
  */
 
 #pragma once
-#include <readdy/model/topologies/reactions/TopologyReactionActionFactory.h>
-#include <readdy/model/topologies/potentials/TopologyPotentialActionFactory.h>
+#include <model/topologies/reactions/TopologyReactionActionFactory.h>
+#include <model/topologies/potentials/TopologyPotentialActionFactory.h>
 
 namespace readdy::model::top {
 

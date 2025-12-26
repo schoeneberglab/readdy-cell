@@ -48,8 +48,8 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
-#include <readdy/model/actions/Action.h>
-#include <readdy/model/actions/Actions.h>
+#include <model/actions/Action.h>
+#include <model/actions/Actions.h>
 
 namespace readdy::model::actions {
 
@@ -58,13 +58,19 @@ public:
 
     virtual std::vector<std::string> getAvailableActions() const {
         return {
-                getActionName<AddParticles>(), getActionName<EulerBDIntegrator>(), getActionName<CalculateForces>(),
-                getActionName<CreateNeighborList>(), getActionName<UpdateNeighborList>(),
-                getActionName<ClearNeighborList>(), getActionName<reactions::UncontrolledApproximation>(),
-                getActionName<reactions::Gillespie>(), getActionName<reactions::DetailedBalance>(),
-                getActionName<top::EvaluateTopologyReactions>(),
-                getActionName<top::BreakBonds>(),
-                getActionName<top::ActionReaction>()
+          getActionName<AddParticles>(),
+          getActionName<EulerBDIntegrator>(),
+          getActionName<CalculateForces>(),
+          getActionName<CreateNeighborList>(),
+          getActionName<UpdateNeighborList>(),
+          getActionName<ClearNeighborList>(),
+          getActionName<reactions::UncontrolledApproximation>(),
+          getActionName<reactions::Gillespie>(),
+          getActionName<reactions::DetailedBalance>(),
+          getActionName<top::EvaluateTopologyReactions>(),
+          getActionName<top::BreakBonds>(),
+          getActionName<top::TriggerReaction>(),
+          getActionName<EulerABDIntegrator>(),
         };
     }
 
@@ -74,6 +80,9 @@ public:
     std::unique_ptr<TimeStepDependentAction> createIntegrator(const std::string &name, scalar timeStep) {
         if (name == getActionName<EulerBDIntegrator>()) {
             return std::unique_ptr<TimeStepDependentAction>(eulerBDIntegrator(timeStep));
+        }
+        if (name == getActionName<EulerABDIntegrator>()) {
+            return std::unique_ptr<TimeStepDependentAction>(eulerABDIntegrator(timeStep));
         }
         throw std::invalid_argument("Requested integrator " + name + " is not available.");
     }
@@ -122,13 +131,15 @@ public:
 
     virtual std::unique_ptr<top::BreakBonds> breakBonds(scalar timeStep, top::BreakConfig config) const = 0;
 
-    virtual std::unique_ptr<top::ActionReaction> actionReaction(top::ReactionConfig config) const = 0;
+    virtual std::unique_ptr<top::TriggerReaction> triggerReaction(top::ReactionConfig config) const = 0;
 
     virtual std::unique_ptr<EvaluateObservables> evaluateObservables() const = 0;
 
     virtual std::unique_ptr<MakeCheckpoint> makeCheckpoint(std::string base, std::size_t maxNSaves) const = 0;
 
     virtual std::unique_ptr<InitializeKernel> initializeKernel() const = 0;
+
+    virtual std::unique_ptr<EulerABDIntegrator> eulerABDIntegrator(scalar timeStep) const = 0;
 };
 
 }

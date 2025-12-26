@@ -45,8 +45,8 @@
 
 #pragma once
 
-#include <readdy/model/ParticleTypeRegistry.h>
-#include <readdy/model/_internal/Util.h>
+#include <model/ParticleTypeRegistry.h>
+#include <model/_internal/Util.h>
 #include "Compartment.h"
 #include "Compartments.h"
 

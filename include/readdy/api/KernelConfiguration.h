@@ -46,7 +46,7 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
-#include <readdy/common/thread/Config.h>
+#include <common/thread/Config.h>
 
 namespace readdy::conf {
 using json = nlohmann::json;

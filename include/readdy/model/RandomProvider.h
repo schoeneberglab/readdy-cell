@@ -48,7 +48,7 @@
 #include <random>
 #include <ctime>
 #include <thread>
-#include "readdy/common/common.h"
+#include "common/common.h"
 
 namespace readdy::model::rnd {
 

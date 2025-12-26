@@ -60,23 +60,40 @@
 #pragma once
 
 #include <type_traits>
-#include <readdy/model/Particle.h>
-#include <readdy/model/actions/Action.h>
-#include <readdy/model/observables/Observable.h>
-#include <readdy/model/reactions/Reaction.h>
-#include <readdy/model/potentials/PotentialOrder2.h>
-#include <readdy/model/Context.h>
-#include <readdy/model/actions/DetailedBalance.h>
-#include <readdy/common/index_persistent_vector.h>
+#include <model/Particle.h>
+#include <model/actions/Action.h>
+#include <model/observables/Observable.h>
+#include <model/reactions/Reaction.h>
+#include <model/potentials/PotentialOrder2.h>
+#include <model/Context.h>
+#include <model/actions/DetailedBalance.h>
+#include <common/index_persistent_vector.h>
 #include "Utils.h"
-#include <readdy/model/topologies/GraphTopology.h>
-#include <readdy/api/ObservableHandle.h>
+#include <model/topologies/GraphTopology.h>
+#include <api/ObservableHandle.h>
 
 #if READDY_OSX || READDY_WINDOWS
 #include <functional>
 #endif
 
 namespace readdy::model::actions {
+
+struct ForceInputData {
+    std::vector<std::size_t> ids;
+    std::vector<Vec3> forces;
+};
+
+class EulerABDIntegrator : public TimeStepDependentFunctionalAction {
+public:
+    explicit EulerABDIntegrator(scalar timeStep);
+	// virtual ~EulerABDIntegrator() override = default;
+    ~EulerABDIntegrator() override = default;
+
+    void perform(const void *data = nullptr) override;
+
+//private:
+//    Kernel *const kernel;
+};
 
 class AddParticles : public Action {
 
@@ -259,7 +276,6 @@ protected:
                     }
                     return std::move(recipe);
                 };
-//                std::cout << "(BB-PreExecution) Topology: " << top->type() << std::endl;
                 scalar rateDoesntMatter{1.};
                 readdy::model::top::reactions::StructuralTopologyReaction reaction("__internal_break_bonds",
                                                                                    reactionFunction, rateDoesntMatter);
@@ -344,7 +360,6 @@ protected:
     }
 };
 
-// TODO: Write tests for this class
 class ReactionConfig {
 public:
     // Registers a new reaction
@@ -368,11 +383,11 @@ private:
     std::vector<std::string> _reactions;
 };
 
-class ActionReaction : public Action {
+class TriggerReaction : public Action {
 public:
-    explicit ActionReaction(ReactionConfig reactionConfig);
+    explicit TriggerReaction(ReactionConfig reactionConfig);
 
-    ~ActionReaction() override = default;
+    ~TriggerReaction() override = default;
 
 protected:
     const ReactionConfig reactionConfig;
@@ -412,7 +427,7 @@ protected:
                 // Removing the particle from the topology structure if it is not a topology particle
                 auto it = newTopology.graph().begin();
                 if (it == newTopology.graph().end()) {
-                    throw std::logic_error("(ActionReaction) Topology had no active particle!");
+                    throw std::logic_error("(TriggerReaction) Topology had no active particle!");
                 }
                 auto particleIndex = it->data().particleIndex;
                 model.getParticleData()->entry_at(particleIndex).topology_index = -1;
@@ -461,6 +476,12 @@ public:
     virtual ~MakeCheckpoint() = default;
     virtual std::string describe() const = 0;
 };
+
+
+template<typename T>
+std::string getActionName(typename std::enable_if<std::is_base_of<EulerABDIntegrator, T>::value>::type * = 0) {
+    return "EulerABDIntegrator";
+}
 
 template<typename T>
 std::string getActionName(typename std::enable_if<std::is_base_of<AddParticles, T>::value>::type * = 0) {
@@ -531,8 +552,8 @@ std::string getActionName(typename std::enable_if<std::is_base_of<top::BreakBond
 }
 
 template<typename T>
-std::string getActionName(typename std::enable_if<std::is_base_of<top::ActionReaction, T>::value>::type * = 0) {
-    return "ActionReaction";
+std::string getActionName(typename std::enable_if<std::is_base_of<top::TriggerReaction, T>::value>::type * = 0) {
+    return "TriggerReaction";
 }
 
 }

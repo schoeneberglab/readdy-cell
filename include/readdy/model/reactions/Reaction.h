@@ -52,8 +52,8 @@
 #include <utility>
 #include <memory>
 #include <spdlog/fmt/ostr.h>
-#include <readdy/model/Particle.h>
-#include <readdy/model/RandomProvider.h>
+#include <model/Particle.h>
+#include <model/RandomProvider.h>
 
 namespace readdy::model::reactions {
 
@@ -183,4 +183,42 @@ protected:
     scalar _weight1 = .5, _weight2 = .5;
 };
 
+}
+
+namespace fmt {
+template<>
+struct formatter<readdy::model::reactions::ReactionType> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const readdy::model::reactions::ReactionType &reactionType, FormatContext &ctx) const {
+        switch (reactionType) {
+            case readdy::model::reactions::ReactionType::Decay:
+                return format_to(ctx.out(), "Decay");
+            case readdy::model::reactions::ReactionType::Conversion:
+                return format_to(ctx.out(), "Conversion");
+            case readdy::model::reactions::ReactionType::Fusion:
+                return format_to(ctx.out(), "Fusion");
+            case readdy::model::reactions::ReactionType::Fission:
+                return format_to(ctx.out(), "Fission");
+            case readdy::model::reactions::ReactionType::Enzymatic:
+                return format_to(ctx.out(), "Enzymatic");
+            default:
+                return format_to(ctx.out(), "Unknown");
+        }
+    }
+};
+
+template<>
+struct formatter<readdy::model::reactions::Reaction> {
+    template <typename ParseContext>
+    constexpr auto parse(ParseContext &ctx) { return ctx.begin(); }
+
+    template <typename FormatContext>
+    auto format(const readdy::model::reactions::Reaction &reaction, FormatContext &ctx) const {
+        return format_to(ctx.out(), "Reaction(id={}, name=\"{}\", rate={}, type={})", 
+                        reaction.id(), reaction.name(), reaction.rate(), reaction.type());
+    }
+};
 }
