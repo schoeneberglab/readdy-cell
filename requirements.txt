@@ -1,0 +1,15 @@
+blosc
+cmake
+conan
+h5py
+hdf5plugin
+igraph
+numpy
+open3d
+pandas
+pint
+pyyaml
+scikit-image
+scipy
+simulariumio
+tqdm
