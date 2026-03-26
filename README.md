@@ -20,6 +20,32 @@ For full details, check out our preprint on BioxRiv! [_Whole-cell particle-based
 - **Passive & Active Transport Dynamics**: Simulates mitochondrial diffusion and directed motor-driven active transport along microtubule topologies.
 - **In-Browser Visualization**: Simulation trajectories are rendered using [Simularium Viewer](https://simularium.allencell.org).
 
+## Installation
+
+1. Create and activate a conda environment:
+
+   ```bash
+   conda create -n readdy-cell python=3.11
+   conda activate readdy-cell
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+3. Compile the project:
+
+   ```bash
+   ./compile.sh
+   ```
+
+4. Run the simulation:
+   ```bash
+   python -m readdy_cell.main
+   ```
+
 ## Acknowledgements
 
 ReaDDy-Cell builds upon the excellent work of the [ReaDDy project](https://github.com/readdy/readdy). We thank the original authors and contributors for making their software open-source and extensible.
