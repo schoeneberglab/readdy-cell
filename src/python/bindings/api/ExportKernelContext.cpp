@@ -77,9 +77,7 @@ void exportKernelContext(py::module &module)
         .def("add_fusion", (readdy::ReactionId (ReactionRegistry::*)(
                                const std::string &, const std::string &, const std::string &, const std::string &, scalar, scalar, scalar, scalar))&ReactionRegistry::addFusion)
         .def("add_decay", (readdy::ReactionId (ReactionRegistry::*)(
-                              const std::string &, const std::string &, scalar))&ReactionRegistry::addDecay)
-        .def("add_creation", (readdy::ReactionId (ReactionRegistry::*)(const std::string &, const std::string &, scalar, scalar))&ReactionRegistry::addCreation,
-             py::arg("name"), py::arg("type"), py::arg("rate"), py::arg("min_distance") = 0.0);
+                              const std::string &, const std::string &, scalar))&ReactionRegistry::addDecay);
 
     py::class_<ParticleTypeRegistry>(module, "ParticleTypeRegistry")
         .def("id_of", &ParticleTypeRegistry::idOf)
