@@ -34,7 +34,7 @@ motor:
     binding_rate: 3.75 # 1/s
     unbinding_rate: 1.27 # 1/s
     activation_rate: 0.06735 # 1/s  (≈ 4.051e-4 activation prob for dt=0.005)
-    p_activate: 0.00048 # dimensionless
+    p_activate: 0.0003 # dimensionless
     deactivation_rate: 0.31 # 1/s
     velocity: 0.78 # um/s
     step_length: 0.05 # um
@@ -46,7 +46,7 @@ motor:
     binding_rate: 3.75
     unbinding_rate: 0.44
     activation_rate: 0.06735
-    p_activate: 0.00048
+    p_activate: 0.0003
     deactivation_rate: 0.25
     velocity: 1.2
     step_length: 0.05
