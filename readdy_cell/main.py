@@ -8,6 +8,7 @@ import readdy
 from readdy.api.experimental.action_factory import BreakConfig, ReactionConfig
 from tqdm import trange, tqdm
 import yaml
+import argparse
 
 from src.analysis import Velocity, TopologyGraphs
 from src.core import DataLoader
@@ -17,6 +18,10 @@ from src.visualization import SimulariumConverter
 
 ut = readdy.units
 np.random.seed(42)
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(current_dir)
+os.chdir(project_root)
 
 class CellSimulation:
     def __init__(self, cfg, *args, **kwargs):
@@ -33,14 +38,9 @@ class CellSimulation:
         self._cfg["run_parameters"]["flags"]["enable_active_transport"] = kwargs.get("enable_active_transport", True)
         self._cfg["run_parameters"]["flags"]["enable_mitochondrial_dynamics"] = kwargs.get("enable_mitochondrial_dynamics", True)
 
-        rc_fusion = kwargs.get("mitochondria_fusion_rate", None)
-        if rc_fusion is not None:
-            self._cfg["mitochondria"]["mitochondria_fusion_rate"] = rc_fusion
-
         # Run parameters
         self._save_simularium = self._cfg["run_parameters"]["flags"]["save_simularium"]
-        self._save_trajectory = self._cfg["run_parameters"]["flags"]["save_trajectory"]
-        self._enable_active_transport = self._cfg["run_parameters"]["flags"]["enable_active_transport"]
+        self._save_vmd = self._cfg["run_parameters"]["flags"]["save_vmd"]
         self._single_motor = self._cfg["run_parameters"]["flags"]["single_motor"]
         self._count_steps = self._cfg["run_parameters"]["flags"]["count_steps"]
         self._count_events = self._cfg["run_parameters"]["flags"]["count_events"]
@@ -58,8 +58,11 @@ class CellSimulation:
         self._temperature = float(self._cfg["simulation"]["temperature"]) * ut.kelvin
 
         model_file = self._cfg["run_parameters"]["io"]["model_file"]
-        condition = kwargs.get("condition", model_file.split("/")[-1].split("_")[0])
-        cell_idx = kwargs.get("cell_idx", model_file.split("/")[-1].split("_")[1][-1])
+
+        if "noco60" in model_file:
+            self._cfg["run_parameters"]["flags"]["enable_active_transport"] = False
+            self._cfg["mitochondria"]["fusion_rate"] = self._cfg["mitochondria"]["fusion_rate_noco60"]
+        self._enable_active_transport = self._cfg["run_parameters"]["flags"]["enable_active_transport"]
 
         try:
             self.load_models()
@@ -67,22 +70,11 @@ class CellSimulation:
             raise BrokenPipeError(f"Error loading models: {e}")
 
         self._run_index = kwargs.get("run_index", None)
-        self._outdir = kwargs.get("workdir", self._cfg["run_parameters"]["io"]["workdir"])
+        self._outdir = kwargs.get("outdir", self._cfg["run_parameters"]["io"]["outdir"])
         self._outfile = kwargs.get("outfile", self._cfg["run_parameters"]["io"]["outfile"])
 
         if self._run_index is not None:
             self._outfile += f"_{self._run_index}"
-
-        p_active_activate = kwargs.get("p_active_activate", None)
-        if p_active_activate is not None:
-            self._cfg["motor#kinesin"]["p_active"] = p_active_activate
-            self._cfg["motor#dynein"]["p_active"] = p_active_activate
-            self._cfg["motor#kinesin"]["p_activate"] = p_active_activate
-            self._cfg["motor#dynein"]["p_activate"] = p_active_activate
-
-        prev_trajfile = f"data/trajectories/cell_model_validation/production_runs/t2/{condition}_c{cell_idx}/" + f"{condition}_c{cell_idx}.h5"
-        self._from_prev_traj = kwargs.get("from_prev_traj", False)
-        self._replace_trials = kwargs.get("replace_trials", True)
 
         print(f"Output directory: {self._outdir}")
         print(f"Output file: {self._outfile}")
@@ -105,10 +97,6 @@ class CellSimulation:
         max_coord = np.max(self._membrane.data, axis=0)
         min_coord = np.min(self._membrane.data, axis=0)
         self.simbox_dims = max_coord - min_coord
-
-        if self._from_prev_traj:
-            print(f"Getting model from: \n {prev_trajfile}")
-            self._mitochondria.data = self.get_model_from_trajectory(prev_trajfile)
 
     @property
     def cfg(self):
@@ -172,7 +160,7 @@ class CellSimulation:
             top = self._simulation.add_topology(ttype, ptypes, coordinates)
             for edge in edges:
                 top.get_graph().add_edge(edge[0], edge[1])
-        print(f"Added {len(graphs)} topologies of type {topology_type} with particle type {particle_type} to the simulation.")
+        # print(f"Added {len(graphs)} topologies of type {topology_type} with particle type {particle_type} to the simulation.")
 
     def add_particles_to_simulation(self, model):
         coordinates = np.array(model.data)
@@ -257,7 +245,7 @@ class CellSimulation:
         tubulin_triples = list(product(tubulin_flags, repeat=3))
 
         for mito_flag in mito_flag_singles:
-            # Mitochondria-Nucleus/Membrane
+            # Mito-Nucleus/Membrane
             self._system.potentials.add_harmonic_repulsion(
                 f"mitochondria{mito_flag}",
                 "nucleus",
@@ -414,12 +402,9 @@ class CellSimulation:
         self._simulation = self._system.simulation(kernel=self._kernel)
 
         if os.path.exists(self._outdir + self._outfile + ".h5"):
-            if self._replace_trials:
-                os.remove(self._outdir + self._outfile + ".h5")
-            else:
-                n_files = len([f for f in os.listdir(self._outdir) if f.endswith(".h5")])
-                self._outfile = self._outfile + f"_{n_files+1}"
-
+            # Remove the existing file to avoid conflicts
+            os.remove(self._outdir + self._outfile + ".h5")
+        
         if not self._outfile.endswith(".h5"):
             self._simulation.output_file = self._outdir + self._outfile + ".h5"
         else:
@@ -458,7 +443,7 @@ class CellSimulation:
         
         self._save_parameters()
 
-        if self._save_trajectory:
+        if self._save_vmd:
             self._trajectory = readdy.Trajectory(self._simulation.output_file)
             self._trajectory.convert_to_xyz(
                 particle_radii={
@@ -485,7 +470,7 @@ class CellSimulation:
                                     with_fibers=self._enable_active_transport)
             sc.save(outfile=(self._outdir + self._outfile))
 
-    def run(self, show_summary=True):
+    def run(self, show_summary=False):
         """ Main routine to run the _simulation optimization loop. """
         self._setup_system()
         self._setup_simulation()
@@ -496,15 +481,52 @@ class CellSimulation:
                                                    self._break_config,
                                                    self._reaction_config,
                                                    self._enable_active_transport,
-                                                   self._stride)
+                                                #    self._stride,
+                                                   )
         self._save_parameters()
         self._simulation._run_custom_loop(custom_loop, show_summary=show_summary)
         self.save()
 
 if __name__ == "__main__":
-    config = "config.yaml"
+    models_dir = os.path.join(current_dir, "models")
+    available_models = [
+        os.path.splitext(f)[0]
+        for f in os.listdir(models_dir)
+        if f.endswith(".pkl")
+    ]
+
+    parser = argparse.ArgumentParser(description="Run a ReaDDy cell simulation.")
+    parser.add_argument(
+        "--model",
+        type=str,
+        choices=available_models,
+        help=f"Model to use for the simulation. Available: {available_models}",
+        default="noco60"
+    )
+    parser.add_argument(
+        "--outfile",
+        type=str,
+        default=None,
+        help="Output file name (without extension). Defaults to the model name.",
+    )
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        default="data/",
+        help="Working directory for output files. Default: data/output/",
+    )
+    args = parser.parse_args()
+
+    if args.outfile is None:
+        args.outfile = args.model
+
+    config = "readdy_cell/config.yaml"
     with open(config, "r") as f:
         cfg = yaml.safe_load(f)
+
+    cfg["run_parameters"]["io"]["model_file"] = os.path.join(models_dir, f"{args.model}.pkl")
+    cfg["run_parameters"]["io"]["outfile"] = args.outfile
+    cfg["run_parameters"]["io"]["outdir"] = args.outdir
 
     csim = CellSimulation(cfg)
     csim.run()

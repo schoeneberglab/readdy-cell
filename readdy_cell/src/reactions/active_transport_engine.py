@@ -19,18 +19,17 @@ class Motor:
     binding_distance: float = 0.5
     path_selection: str = "random"
     step_length: float = 0.05
-    velocity: float = 1.0
-    step_rate: float = 1.0
-    binding_rate: float = 1.0
-    unbinding_rate: float = 1.0
-    activation_rate: float = 1.0
-    deactivation_rate: float = 1.0
-    p_step: float = 1.0
-    p_binding: float = 1.0
-    p_unbind: float = 1.0
-    p_active: float = 1.0
-    p_activate: float = 1.0
-    p_deactivate: float = 1.0
+    velocity: float = None
+    binding_rate: float = None
+    unbinding_rate: float = None
+    activation_rate: float = None
+    deactivation_rate: float = None
+    p_step: float = None
+    p_binding: float = None
+    p_unbind: float = None
+    p_active: float = None
+    p_activate: float = None
+    p_deactivate: float = None
 
 class ActiveTransportEngine:
     def __init__(self, config, timestep, stride, **kwargs):
@@ -133,21 +132,21 @@ class ActiveTransportEngine:
 
             if "velocity" in parameters.keys():
                 velocity = parameters["velocity"]
-                print(f"(get_motor_event_probabilities) Velocity: {velocity}")
+                # print(f"(get_motor_event_probabilities) Velocity: {velocity}")
                 if not isinstance(velocity, ut.Quantity):
                     velocity = velocity * ut.um / ut.s
 
                 step_rate = velocity / step_length
-                print(f"(get_motor_event_probabilities) Step Rate: {step_rate}")
+                # print(f"(get_motor_event_probabilities) Step Rate: {step_rate}")
                 p_step = rate_to_probability(step_rate, self._timestep)
-                print(f"(get_motor_event_probabilities) Step Probability: {p_step}")
+                # print(f"(get_motor_event_probabilities) Step Probability: {p_step}")
             else:
                 p_step = rate_to_probability(parameters["step_rate"], self._timestep)
             parameters["p_step"] = p_step
 
-        print(f"(get_motor_event_probabilities) Motor Parameters:")
-        for key, value in parameters.items():
-            print(f"  {key}: {value}")
+        # print(f"(get_motor_event_probabilities) Motor Parameters:")
+        # for key, value in parameters.items():
+        #     print(f"  {key}: {value}")
         return parameters
 
     def register_motor_type(self, motor_type, parameters, **kwargs):
@@ -159,7 +158,7 @@ class ActiveTransportEngine:
             motor_cls = Motor(motor_type, **parameters)
         self.motor_registry[motor_type] = motor_cls
 
-        print(f"(register_motor_type) Registered motor: {motor_cls}")
+        # print(f"(register_motor_type) Registered motor: {motor_cls}")
 
         if self._count_steps and motor_type not in self._step_counts:
                 self._step_counts[motor_type] = {}
@@ -435,7 +434,7 @@ class ActiveTransportEngine:
             arr = np.zeros(n_steps)
             for key in self.motor_registry.keys():
                 self._event_counts[key] = {"activate": np.zeros_like(arr), "deactivate": np.zeros_like(arr), "unbind": np.zeros_like(arr)}
-            print(self._count_events)
+            # print(self._count_events)
 
         def active_transport_simulation_loop():
             readdy_actions = _actions
@@ -585,14 +584,6 @@ class ActiveTransportIterator:
         self._is_active = np.random.choice([True, False],
                                            p=[self.motor.p_active, 1 - self.motor.p_active])
 
-        # cache for ATP-control modifiers
-        self._phi = None
-        self._p_step = getattr(self.motor, "p_step", 1.0)
-        self._p_binding = getattr(self.motor, "p_binding", 1.0)
-        self._p_unbind = getattr(self.motor, "p_unbind", 1.0)
-        self._p_activate = getattr(self.motor, "p_activate", 1.0)
-        self._p_deactivate = getattr(self.motor, "p_deactivate", 1.0)
-
     @property
     def is_active(self):
         return self._is_active
@@ -611,7 +602,7 @@ class ActiveTransportIterator:
         self.unit_vector_to_target = self.vector_to_target / (np.linalg.norm(self.vector_to_target) + 1.e-32)
 
     def update_active_motor_position(self):
-        """ Updates the motor position along the edge using ATP-aware p_step if available. """
+        """ Updates the motor position along the edge using p_step. """
         p_step = getattr(self, "_p_step", self.motor.p_step)
         if np.random.choice([True, False], p=[p_step, 1 - p_step]):
             self.position += self.motor.step_length * self.unit_vector_to_target
@@ -689,27 +680,27 @@ class ActiveTransportIterator:
                 return None
 
         # Evaluate P(Unbinding) and return None if unbinding event occurs
-        if np.random.choice([True, False], p=[self._p_unbind, 1 - self._p_unbind]):
+        if np.random.choice([True, False], p=[self.motor.p_unbind, 1 - self.motor.p_unbind]):
             if self.engine._event_counts:
                 self.engine._event_counts[self.motor.motor_type]["unbind"][self.engine._it] += 1
             return None  # Equivalent to the end of the line
 
-        # Correct for drift regardless of (possible) events to follow
+        # Correct for drift
         self.apply_edge_drift_correction()
 
         # Evaluate P(Event | Active)'s
         if self._is_active:
             # Deactivation event
-            if np.random.choice([True, False], p=[self._p_deactivate, 1 - self._p_deactivate]):
+            if np.random.choice([True, False], p=[self.motor.p_deactivate, 1 - self.motor.p_deactivate]):
                 self._is_active = False
                 if self.engine.count_events:
                     self.engine._event_counts[self.motor.motor_type]["deactivate"][self.engine._it] += 1
             else:
-                # ATP-aware stepping
+                # Step event
                 self.update_active_motor_position()
         else:
             # Activation event
-            if np.random.choice([True, False], p=[self._p_activate, 1 - self._p_activate]):
+            if np.random.choice([True, False], p=[self.motor.p_activate, 1 - self.motor.p_activate]):
                 self._is_active = True
                 if self.engine.count_events:
                     self.engine._event_counts[self.motor.motor_type]["activate"][self.engine._it] += 1

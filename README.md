@@ -18,7 +18,12 @@ For full details, check out our preprint on BioxRiv! [_Whole-cell particle-based
   constructing particle-based models from imaging data.
 - **Automated Digital Twin Construction**: Factory methods for building spatially explicit, particle-based models of mitochondria, microtubules, plasma membrane, and nuclear membrane from live-cell imaging data.
 - **Passive & Active Transport Dynamics**: Simulates mitochondrial diffusion and directed motor-driven active transport along microtubule topologies.
-- **In-Browser Visualization**: Simulation trajectories are rendered using [Simularium Viewer](https://simularium.allencell.org).
+- **In-Browser Visualization**: Simulation trajectories are rendered using [Simularium](https://simularium.allencell.org).
+
+## System Requirements
+
+- **OS**: Ubuntu 20.04+
+- **Conda**: Miniconda or Anaconda
 
 ## Installation
 
@@ -29,22 +34,34 @@ For full details, check out our preprint on BioxRiv! [_Whole-cell particle-based
    conda activate readdy-cell
    ```
 
-2. Install dependencies:
+2. Install python and build dependencies:
 
    ```bash
    pip install -r requirements.txt
    ```
 
-3. Compile the project:
+3. Set up conan for C++ dependencies:
+
+   ```bash
+   conan profile detect
+   ```
+
+4. Compile the project:
 
    ```bash
    ./compile.sh
    ```
 
-4. Run the simulation:
+5. Run the simulation:
+
    ```bash
-   python -m readdy_cell.main
+   cd readdy_cell
+   python main.py
    ```
+
+6. Visualize the trajectory:
+
+   Open [Simularium Visualizer](https://simularium.allencell.org/viewer) in your browser and drop the `.simularium` file onto the window to visualize.
 
 ## Acknowledgements
 

@@ -23,16 +23,16 @@ ut = readdy.units
 np.random.seed(42)
 
 class ModelFactory:
-    def __init__(self, data_root, workdir, model_name, *args, **kwargs):
+    def __init__(self, data_root, outdir, model_name, *args, **kwargs):
         print(f"Loading data from {data_root}")
         self._dl = DataLoader(data_root)
         self.models = {}
         self._models_unchanged = {}
-        self.workdir = workdir
+        self.outdir = outdir
         self.model_name = model_name
 
-        if not os.path.exists(self.workdir):
-            os.makedirs(self.workdir)
+        if not os.path.exists(self.outdir):
+            os.makedirs(self.outdir)
 
     def hide_membrane_fraction(self, fraction):
         """ Hides a fraction of the membrane model. """
@@ -49,7 +49,7 @@ class ModelFactory:
 
     def run(self):
         """ Generates all models and stores them in the models dictionary. """
-        mt_filename = osp.join(self.workdir, f"{self.model_name}_microtubules")
+        mt_filename = osp.join(self.outdir, f"{self.model_name}_microtubules")
         self._membrane = MembraneFactory(self._dl).run()
         self._nucleus = NucleusFactory(self._dl).run()
         self._mitochondria = MitochondriaFactory(self._dl).run()
@@ -113,7 +113,7 @@ class ModelFactory:
 
     def save(self):
         """ Saves the models to a pickle file. """
-        outfile = osp.join(self.workdir, self.model_name + ".pkl" if not self.model_name.endswith(".pkl") else "")
+        outfile = osp.join(self.outdir, self.model_name + ".pkl" if not self.model_name.endswith(".pkl") else "")
         with open(outfile, "wb") as f:
             pickle.dump(self.models, f)
         print(f"Models saved to: {outfile}")
@@ -126,7 +126,7 @@ class ModelFactory:
         cfg[""]["n_steps"] = 1e3
         cfg[""]["stride"] = 10
         cfg["run_parameters"]["flags"]["enable_mitochondrial_dynamics"] = False
-        cfg["run_parameters"]["io"]["workdir"] = kwargs.get("workdir", self.workdir)
+        cfg["run_parameters"]["io"]["outdir"] = kwargs.get("outdir", self.outdir)
         cfg["run_parameters"]["io"]["outfile"] = kwargs.get("outfile", self.model_name + "_equilbrate")
 
         csim = CellSimulation(cfg, models=self.models)
@@ -139,7 +139,7 @@ class ModelFactory:
 
         cfg[""]["n_steps"] = 10
         cfg[""]["stride"] = 1
-        cfg["run_parameters"]["io"]["workdir"] = kwargs.get("workdir", self.workdir)
+        cfg["run_parameters"]["io"]["outdir"] = kwargs.get("outdir", self.outdir)
         cfg["run_parameters"]["io"]["outfile"] = kwargs.get("outfile", self.model_name + "_vis")
         csim = CellSimulation(cfg, models=self.models)
         csim.run(show_summary=False)

@@ -147,7 +147,7 @@ class AgentData:
             else np.zeros_like(self.positions)
         )
         self.n_subpoints = (
-            AgentData._fill_df(pd.DataFrame(n_subpoints), 0.0).to_numpy(dtype=int)
+            np.array(AgentData._fill_df(pd.DataFrame(n_subpoints), 0.0).to_numpy(dtype=int))
             if n_subpoints is not None
             else np.zeros_like(self.radii)
         )

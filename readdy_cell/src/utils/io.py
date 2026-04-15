@@ -18,8 +18,8 @@ def get_mitotnt_configfile() -> Path:
     return get_project_root() / "configs" / "defaults" / "mitotnt_defaults.yaml"
 
 
-def get_workdir_configfile() -> Path:
-    return get_project_root() / "configs" / "workdir_config.yaml"
+def get_outdir_configfile() -> Path:
+    return get_project_root() / "configs" / "outdir_config.yaml"
 
 
 def read_config(filepath):

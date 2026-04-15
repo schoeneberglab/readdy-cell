@@ -263,10 +263,8 @@ class SimulariumConverter:
                     # Count the number of vertices of degree 1
                     n_deg1 = len([v for v in g.vs if v.degree() == 1])
                     if n_deg1 != 2:
-                        print("Branching detected!")
                         is_branching = True
                         break
-
                 if is_branching:
                     break
 
@@ -426,37 +424,22 @@ class SimulariumConverter:
         if self.fiber_graph is not None:
             self.get_fiber_agent_data()
 
-            try:
-                readdy_data = self.create_readdy_data()
-                self.particle_agent_data = ReaddyConverter(readdy_data)._get_agent_data(readdy_data)[0]
-                self.particle_agent_data.display_data = readdy_data.display_data
-                camera_data = None
-                trajectory_data = TrajectoryData(
-                    meta_data=MetaData(
-                        box_size=self.box_size,
-                        trajectory_title="",
-                        model_meta_data=None,
-                        camera_defaults=camera_data
-                    ),
-                    agent_data=self.fiber_agent_data,
-                    time_units=self.time_units,
-                    spatial_units=self.spatial_units,
-                )
-                trajectory_data.append_agents_with_subpoints_optimized(self.particle_agent_data)
-            except:
-                print("Error in readdy data; Saving fiber data only...")
-                camera_data = None
-                trajectory_data = TrajectoryData(
-                    meta_data=MetaData(
-                        box_size=self.box_size,
-                        trajectory_title="",
-                        model_meta_data=None,
-                        camera_defaults=camera_data
-                    ),
-                    agent_data=self.fiber_agent_data,
-                    time_units=self.time_units,
-                    spatial_units=self.spatial_units,
-                )
+            readdy_data = self.create_readdy_data()
+            self.particle_agent_data = ReaddyConverter(readdy_data)._get_agent_data(readdy_data)[0]
+            self.particle_agent_data.display_data = readdy_data.display_data
+            camera_data = None
+            trajectory_data = TrajectoryData(
+                meta_data=MetaData(
+                    box_size=self.box_size,
+                    trajectory_title="",
+                    model_meta_data=None,
+                    camera_defaults=camera_data
+                ),
+                agent_data=self.fiber_agent_data,
+                time_units=self.time_units,
+                spatial_units=self.spatial_units,
+            )
+            trajectory_data.append_agents_with_subpoints_optimized(self.particle_agent_data)
             TrajectoryConverter(trajectory_data).save(outfile)
 
         else:

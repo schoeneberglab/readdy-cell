@@ -1,21 +1,24 @@
 run_parameters:
   flags:
-    save_trajectory: true
-    save_simularium: false
-    enable_mitochondrial_dynamics: true
+    plot_results: true
+    save_simularium: true
+    save_vmd: false
+    save_results: true
     enable_active_transport: true
     single_motor: false
     count_steps: true
     count_events: true
+    enable_mitochondrial_dynamics: true
   io:
-    outfile: "OUTPUT_FILENAME"
-    workdir: "PATH_TO_WORKDIR"
-    model_file: "PATH_TO_MODEL_FILE.pkl"
+    outfile: "OUTFILE"
+    outdir: "OUTDIR"
+    model_file: "MODEL_FILE.pkl"
 
 simulation:
-  dt: 0.005
-  n_steps: 1.2e4 # 60s # 2.4e4
-  stride: 2.e2 # 1 second @ 5ms step
+  dt: 0.005 # s
+  # n_steps: 2.4e4 # 120s
+  n_steps: 4.e2 # 120s
+  stride: 2.0e2 # 1 s
   temperature: 310.15 # K
 
 units:
@@ -33,30 +36,32 @@ motor:
     binding_distance: 0.2 # um
     binding_rate: 3.75 # 1/s
     unbinding_rate: 1.27 # 1/s
-    activation_rate: 0.06735 # 1/s  (≈ 4.051e-4 activation prob for dt=0.005)
-    p_activate: 0.0003 # dimensionless
+    p_activate: 0.00030 # /dt
+    p_active: 0.00030 # /dt
     deactivation_rate: 0.31 # 1/s
     velocity: 0.78 # um/s
     step_length: 0.05 # um
     polarity: 1 # dimensionless
     radius: 0.05 # um
+    p_binding: 0.5 # dimensionless probability for creating a kinesin motor (vs dynein); must sum to 1.
 
   dynein:
     binding_distance: 0.2
     binding_rate: 3.75
     unbinding_rate: 0.44
-    activation_rate: 0.06735
-    p_activate: 0.0003
+    p_activate: 0.00030 # /dt
+    p_active: 0.00030 # /dt
     deactivation_rate: 0.25
     velocity: 1.2
     step_length: 0.05
     polarity: -1
     radius: 0.05
     path_selection: random
+    p_binding: 0.5 # dimensionless probability for creating a dynein motor (vs kinesin); must sum to 1.
 
 mitochondria:
   radius: 0.15
-  diffusion_constant: 0.0048 # um^2/s
+  diffusion_constant: 0.005 # um^2/s
   kc_repulsion: 0.005 # kJ/mol/nm^2
   d_repulsion: 0.3
   kc_bond: 0.01
@@ -64,8 +69,8 @@ mitochondria:
   kc_angle: 9.12 # kJ/mol/rad^2
   eq_angle: 3.1416
   fission_rate: 0.00044
-  # fusion_rate: 0.1 # noco60
-  fusion_rate: 0.063 # control
+  fusion_rate: 0.047 # control + noco30
+  fusion_rate_noco60: 0.1 # noco60
   fusion_radius: 0.3
   enable_ss_fusion: false
 
@@ -74,10 +79,10 @@ tubulin:
   diffusion_constant: 0.0178
   kc_repulsion: 0.005
   d_repulsion: 0.05
-  kc_bond: 0.01
+  kc_bond: 0.005
   eq_bond: 0.2
   kc_angle: 50.0
-  eq_angle: 3.141592653589793
+  eq_angle: 3.1416
 
 nucleus:
   radius: 0.25
@@ -86,8 +91,5 @@ membrane:
   radius: 0.25
 
 transport_parameters:
-  motor_radius: 0.05
-  rc_reverse_direction: 0.0
-  kc_bond: 0.01
   bond_energy_threshold: 650.0
   rc_cleave_bond: 1.0e32
