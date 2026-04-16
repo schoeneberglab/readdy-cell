@@ -13,7 +13,7 @@ def from_vec3(vec):
 
 class ModelBuilder:
     def __init__(self):        
-        self.n_steps = int(1e4) # int(5e3)
+        self.n_steps = int(1e4)
         self.voxel_size = np.array([0.111, 0.111, 0.111])
 
         self.particle_radius = 0.1
@@ -27,7 +27,7 @@ class ModelBuilder:
         self.simulation = None
 
         self.fc_box = 0.1
-        self.fc_repulsion = 0.001 # 0.001
+        self.fc_repulsion = 0.001
         self.fc_bond = 0.002
         self.eq_bond = 0.2
         self.fc_angle = 3.0
@@ -42,7 +42,7 @@ class ModelBuilder:
         self.bond_rate = 100.0
         
         self._img_arr = np.random.rand(10, 10, 10)
-        self._intensity_threshold = 0.7 # 0.6
+        self._intensity_threshold = 0.7
         self._high_intensity_coords = None
         self._ugrad_arr = None
 

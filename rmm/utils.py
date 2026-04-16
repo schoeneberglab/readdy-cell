@@ -116,45 +116,7 @@ def polarize(g, root_vertex_id="C", mode="closest", min_vertices=3, centrosome_c
         else:
             raise ValueError(f"Unknown mode: {mode}")
     return combine_and_simplify(gs)
-    # return gs
 
-#-- Newer version that polarizes only using the centrosome coordinate
-# def polarize(g, min_vertices=3, centrosome_coordinate=None):
-#     """ Adds polarity to an undirected/depolarized microtubule graph network. """
-#     comps = g.components(mode="WEAK")
-#     subgraphs = [g.subgraph(c) for c in comps if len(c) >= min_vertices]
-#     # subgraphs = g.decompose()
-
-#     # g_centrosome = [sg for sg in subgraphs if any([v['type'] == root_vertex_id for v in sg.vs])][0]
-#     # sg_list = [sg for sg in subgraphs if all([v['type'] != root_vertex_id for v in sg.vs])]
-#     # centrosome_coordinate = g_centrosome.vs.find(type=root_vertex_id)['coordinate']
-
-#     # Redirect disjoint subgraphs 
-#     gs = []
-#     for i in tqdm(range(len(subgraphs)), desc="Polarizing Microtubules", leave=False):
-#         sg = subgraphs[i]
-#         vs_deg1 = [v for v in sg.vs if v.degree() == 1]
-#         if len(vs_deg1) == 0:
-#             continue
-
-
-#         vs_coords = np.array([v['coordinate'] for v in vs_deg1])
-#         dists = np.linalg.norm(vs_coords - centrosome_coordinate, axis=1)
-#         min_idx = np.argmin(dists)
-#         v = vs_deg1[min_idx]
-#         sg_directed = redirect_graph(sg, v)
-#         gs.append(sg_directed)
-#         # elif mode == "random":
-#         #     v = np.random.choice(vs_deg1)
-#         #     sg_directed = redirect_graph(sg, v)
-#         #     sg_list_disjoint.append(sg_directed)
-#         # else:
-#         #     raise ValueError(f"Unknown mode: {mode}")
-
-#     # Redirect the main centrosome graph
-#     # g_centrosome = redirect_graph(g_centrosome, g_centrosome.vs.find(type=root_vertex_id))
-    
-#     return combine_and_simplify(gs)
 
 def combine_and_simplify(graphs: List[ig.Graph]) -> ig.Graph:
     """Combines multiple graphs into one and simplifies it."""
@@ -283,96 +245,6 @@ def extract_topology_graphs_from_frame(
 
     return combine_and_simplify(frame_graphs)
 
-# def plot_graphs(graphs, 
-#                 as_components=True, 
-#                 with_arrows=False, 
-#                 arrow_radius=0.01, 
-#                 arrow_length_ratio=0.2,
-#                 show_centrosome=False
-#                 ):
-#     """
-#     Plot graphs in Open3D. Uses line sets for undirected graphs and arrows for directed graphs.
-
-#     Args:
-#         graphs: ig.Graph or list of ig.Graph
-#         as_components: split into connected components if True
-#         arrow_radius: radius of the arrow cylinder/cone
-#         arrow_length_ratio: cone length relative to edge length
-#     """
-#     if isinstance(graphs, ig.Graph):
-#         if as_components:
-#             comps = graphs.connected_components(mode="WEAK")
-#             graphs = [graphs.subgraph(c) for c in comps]
-#             colors = np.random.rand(len(graphs), 3)
-#         else:
-#             colors = np.array([[1, 0, 1]])
-#             graphs = [graphs]
-#     else:
-#         colors = np.random.rand(len(graphs), 3)
-
-#     geoms = []
-#     for i, g in enumerate(graphs):
-#         coords = np.array(g.vs["coordinate"])
-#         if g.is_directed() and with_arrows:
-#             # Make arrows
-#             for e in g.es:
-#                 src, tgt = e.tuple
-#                 p0, p1 = coords[src], coords[tgt]
-#                 v = p1 - p0
-#                 length = np.linalg.norm(v)
-#                 if length == 0:
-#                     continue
-#                 # Create arrow mesh
-#                 arrow = o3d.geometry.TriangleMesh.create_arrow(
-#                     cylinder_radius=arrow_radius,
-#                     cone_radius=arrow_radius * 1.5,
-#                     cylinder_height=length * (1 - arrow_length_ratio),
-#                     cone_height=length * arrow_length_ratio
-#                 )
-#                 arrow.paint_uniform_color(colors[i])
-
-#                 # Align arrow with vector v
-#                 arrow.translate([0, 0, 0])
-#                 R = arrow.get_rotation_matrix_from_xyz([0, 0, 0])  # identity placeholder
-#                 z = np.array([0, 0, 1.0])
-#                 v_norm = v / length
-#                 axis = np.cross(z, v_norm)
-#                 if np.linalg.norm(axis) > 1e-6:
-#                     axis /= np.linalg.norm(axis)
-#                     angle = np.arccos(np.dot(z, v_norm))
-#                     R = o3d.geometry.get_rotation_matrix_from_axis_angle(axis * angle)
-#                 arrow.rotate(R, center=(0, 0, 0))
-#                 arrow.translate(p0)
-#                 geoms.append(arrow)
-#         else:
-#             # Use lines for undirected
-#             line = o3d.geometry.LineSet()
-#             line.points = o3d.utility.Vector3dVector(coords)
-#             line.lines = o3d.utility.Vector2iVector(np.array(g.get_edgelist()))
-#             line.paint_uniform_color(colors[i])
-#             geoms.append(line)
-
-#     if show_centrosome:
-#         # Find the centrosome (type "C") and plot as sphere
-#         for g in graphs:
-#             for v in g.vs:
-#                 if v['type'] == "C" or "centrosome" or "Centrosome":
-#                     center = v['coordinate']
-#                     sphere = o3d.geometry.TriangleMesh.create_sphere(radius=0.2)
-#                     sphere.translate(center)
-#                     sphere.paint_uniform_color([1, 0, 0])
-#                     geoms.append(sphere)
-
-#     vis = o3d.visualization.Visualizer()
-#     vis.create_window(width=1920, height=1080)
-
-#     coord_frame = o3d.geometry.TriangleMesh.create_coordinate_frame(size=1.0)
-#     vis.add_geometry(coord_frame)
-#     for g in geoms:
-#         vis.add_geometry(g)
-#     vis.run()
-#     vis.destroy_window()
-
 
 def mask_to_sdf(mask: np.ndarray) -> np.ndarray:
     """
@@ -434,14 +306,3 @@ def mask_graph(g: ig.Graph, mask: np.ndarray, voxel_size=np.array([0.111, 0.111,
     print(f"Initial vertices: {n_initial}, Final vertices: {n_final}, Removed: {n_initial - n_final}")
     return g
 
-if __name__ == "__main__":
-    memfile = "/Users/earkfeld/Projects/readdy-made-models/data/membrane.tif"
-    nucfile = "/Users/earkfeld/Projects/readdy-made-models/data/nucleus.tif"
-    import tifffile as tiff
-    mem_mask = tiff.imread(memfile)
-    nuc_mask = tiff.imread(nucfile)
-    combined_mask = combine_masks([mem_mask, nuc_mask], [False, True])
-    combined_mask = combined_mask.astype(np.uint8) * 255
-    
-    # Save the mask
-    tiff.imwrite("combined_mask.tif", combined_mask, imagej=True, metadata={'axes': 'ZYX'})
