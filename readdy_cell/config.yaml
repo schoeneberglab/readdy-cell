@@ -16,8 +16,7 @@ run_parameters:
 
 simulation:
   dt: 0.005 # s
-  # n_steps: 2.4e4 # 120s
-  n_steps: 4.e2 # 120s
+  n_steps: 2.4e4 # 120s
   stride: 2.0e2 # 1 s
   temperature: 310.15 # K
 
